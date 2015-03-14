@@ -1,0 +1,7 @@
+*.pyc
+*.data
+*.states
+*.locations
+*.DS_Store
+.project
+.idea

@@ -1,0 +1,70 @@
+<ExperimentDesign>
+    <Common>
+        <Iterations>20000</Iterations>
+        <PopulationFilename>mixed_population.xml</PopulationFilename>
+        <Reactions>chemistry_model.emergent_reactions.EmergentReactions</Reactions>
+        <CollisionLimit>20000</CollisionLimit>
+    </Common>
+    <Factors>
+        <Factor key="productstrategy">
+            <High>
+                <ProductSelection>Energy</ProductSelection>
+            </High>
+            <Low>
+                <ProductSelection>Uniform</ProductSelection>
+            </Low>
+            <Title>Product Strategy</Title>
+        </Factor>
+        <Factor key='reactantstrategy'>
+            <High>
+                <Molecule>kinetic_molecule.KineticMolecule</Molecule>
+                <Vessel>reactor_model.spatial_reaction_vessel.SpatialReactionVessel</Vessel>
+                <ReactionVesselDimension>2</ReactionVesselDimension>
+            </High>
+            <Low>
+                <Molecule>kinetic_molecule.KineticMolecule</Molecule>
+                <Vessel>reactor_model.aspatial_reaction_vessel.AspatialReactionVessel</Vessel>
+                <ReactionVesselDimension>0</ReactionVesselDimension>
+            </Low>
+            <Title>Reactant Strategy</Title>
+        </Factor>
+        <Factor key='energy'>
+            <High>
+                <Energy>300</Energy>
+            </High>
+            <Low>
+                <Energy>100</Energy>
+            </Low>
+            <Title>Energy</Title>
+        </Factor>
+        <Factor key='bonds'>
+            <High>
+                <BondFormationEnergies>
+                    <Single>50</Single>
+                    <Double>100</Double>
+                    <Triple>200</Triple>
+                </BondFormationEnergies>
+            </High>
+            <Low></Low>
+            <Title>Bond Energies</Title>
+        </Factor>
+    </Factors>
+    <Experiment name='strategies-1' repeats='3' recover='True' seed='732563119720'>
+        <Factor key="productstrategy" value="Low"/>
+        <Factor key='reactantstrategy' value='Low'/>
+        <Factor key='energy' value='Low'/>
+        <Factor key='bonds' value='Low'/>
+    </Experiment>
+    <Experiment name='strategies-2' repeats='3' recover='True' seed='732563119720'>
+        <Factor key="productstrategy" value="Low"/>
+        <Factor key='reactantstrategy' value='Low'/>
+        <Factor key='energy' value='High'/>
+        <Factor key='bonds' value='Low'/>
+    </Experiment>
+    <Evaluation>
+        <!--<Method partition="false">evaluators.evaluator_summary.EvaluatorSummary</Method>-->
+        <!--<Method partition="true">evaluators.evaluator_cycles.EvaluatorActualCycles</Method>-->
+        <Method>evaluators.plot_molecular_diversity.PlotMolecularDiversity</Method>
+        <!--<Method>evaluators.plot_new_molecule_types.PlotNewMoleculeTypes</Method>-->
+    </Evaluation>
+</ExperimentDesign>

@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<population>
+	<setvalue item="[H][H]" quantity="1" />
+	<setvalue item="O=O" quantity="1" />
+	<setvalue item="O" quantity="2" /> <!-- H2O -->
+	<setvalue item="[O-][N+](=O)[N+]([O-])=O" quantity="1" />
+	<setvalue item="N(=O)[O]" quantity="1" />
+	<setvalue item="O=C=O" quantity="2" />
+</population>
