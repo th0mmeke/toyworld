@@ -6,7 +6,7 @@ Molecules are modelled as an extension of standard RDKit Mol objects, constructe
 
 ## Installation
 
-Requires Python 2.7 with python packages python-networkx, python-numpy, python-rdkit, pygame and pymunk.
+Requires Python 2.7 with python packages python-networkx, python-numpy, python-rdkit, pygame and pymunk. Any of the evaluators that inherit from plot.py also require matplotlib.pyplot.
 
 ### Docker
 
@@ -16,7 +16,10 @@ This is the simplest way to use Toyworld.
 
 The data directory must contain `experiment_design.xml` and any referenced files (such as a population file). Results will also be returned in this directory.
 
+For evaluations, use `docker run -v=<path to data directory>:/toyworld/data th0mmeke/toyworld python evaluate.py -e experiment_design.xml`
+
 ### Ubuntu
+
 Install pre-reqs:
 
     apt-get update
@@ -66,12 +69,20 @@ Finally, in directory ../$TOYWORLD: `git clone https://github.com/th0mmeke/toywo
 
 ## Usage
 
-  1. Describe an experiment (create an experiment definition in XML) or sequence of experiments (`python toyworld/doe.py`)
-  1. Run the experiment (`python toyworld/main.py -e <experiment file>`)
-  1. Evaluation (`python toyworld/evaluate.py -e <experiment file>`)
+1. Describe an experiment (create an experiment definition in XML) or sequence of experiments (`python toyworld/doe.py`)
+1. Run the experiment (`python toyworld/main.py -e <experiment file>`)
+1. Evaluation (`python toyworld/evaluate.py -e <experiment file>`)
 
 ## Configuration
 
 Experiments are defined in an XML experiment definition. An example can be found in `docs/experiment_design.xml`. The experiment definition must include a reference to a population description, detailing the initial molecular population (see `docs\mixed_population.xml` for a sample.)
 
+The list of parameters that Toyworld understands can be found in parameters.py.
+
+## TODO
+
+1. Convert the experiment_design file format from XML to JSON
+1. Rewrite tests to use mocks
+1. `Visualize` option should initialize a visualizer, rather than having `if visualize` tests scattered throughout the code
+1. Make the common section of the experiment_definition optional
 
