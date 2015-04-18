@@ -15,9 +15,6 @@ class EvaluatorPopulationSummary(Evaluator):
         return ["t", "Number of molecular species"]
 
     def evaluate(self, results_filename, **kwargs):
-        """Calculates some interesting statistics for the experimental run.
-
-        :rtype: Number of unique reactants, number of reactant types, maximum times a molecule was a reactant, length of longest molecule"""
 
         results = Evaluator.load_results(results_filename)
         population = MolecularPopulation(population=results['initial_population'], reactions=results['reactions'], size=100)
@@ -28,5 +25,4 @@ class EvaluatorPopulationSummary(Evaluator):
             number_of_items = len(set(item for item in p.get_items() if p.get_quantity(item) > 0))
             result.append([t, number_of_items])
 
-        # print(result)
         return result
