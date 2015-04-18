@@ -66,7 +66,7 @@ class MolecularPopulation(Population):
 
             count += 1
 
-    def _sample_reactions(self, reactions, size):
+    def _sample_reactions(self, const_reactions, size):
         """Apply a set of reactions in form of a list of reactions, where each
         reaction = {'iteration':iteration, 'reactants':[reactants], 'products':[products]}
 
@@ -76,6 +76,7 @@ class MolecularPopulation(Population):
         We conduct a sample at regular intervals. If None then no sampling is done.
         """
 
+        reactions = const_reactions[:]
         logging.debug("Calculating unique elements...")
         elements = set(self.get_items())  # COPY initial items
         for reaction in reactions:

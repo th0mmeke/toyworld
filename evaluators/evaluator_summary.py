@@ -12,6 +12,7 @@ from rdkit.Chem import AllChem as Chem
 
 from evaluator import Evaluator
 from molecular_population import MolecularPopulation
+from molecule import Molecule
 
 
 class EvaluatorSummary(Evaluator):
@@ -25,6 +26,7 @@ class EvaluatorSummary(Evaluator):
         :rtype: Number of unique reactants, number of reactant types, maximum times a molecule was a reactant, length of longest molecule"""
 
         results = Evaluator.load_results(results_filename)
+
         population = MolecularPopulation(population=results['initial_population'], reactions=results['reactions'], size=100)
 
         initial_population = population.get_slice_by_time([0])
@@ -37,9 +39,8 @@ class EvaluatorSummary(Evaluator):
         supplied_items = set(item for item in initial_population.get_items() if initial_population.get_quantity(item) > 0)
         final_items = set(item for item in population.get_items() if population.get_quantity(item) > 0)
 
-        # TODO: change this to use Molecule construction rather than MolFromSmiles
-        supplied_atom_count = sum([Chem.AddHs(Chem.MolFromSmiles(i)).GetNumAtoms() * initial_population.get_quantity(i) for i in supplied_items])
-        final_atom_count = sum([Chem.AddHs(Chem.MolFromSmiles(i)).GetNumAtoms() * population.get_quantity(i) for i in final_items])
+        supplied_atom_count = sum([Molecule(i).GetNumAtoms() * initial_population.get_quantity(i) for i in supplied_items])
+        final_atom_count = sum([Molecule(i).GetNumAtoms() * population.get_quantity(i) for i in final_items])
 
         iteration = collisions = 0
         reactant_ids = {}
