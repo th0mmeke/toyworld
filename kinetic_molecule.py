@@ -59,7 +59,7 @@ class KineticMolecule(Molecule):
 
     def get_state(self):
         state = super(KineticMolecule, self).get_state()
-        state.update({'speed': self.get_speed(), 'size': self.get_size(), 'ke': self.get_kinetic_energy()})
+        state.update({'id': self.global_id, 'speed': self.get_speed(), 'size': self.get_size(), 'ke': self.get_kinetic_energy()})
         return state
 
     def set_position(self, x, y):

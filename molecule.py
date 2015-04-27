@@ -41,7 +41,9 @@ class Molecule(Chem.Mol):
 
         Chem.Mol.__init__(self, source.ToBinary())
 
-        if components is None and Chem.MolToSmiles(self).find(".") == -1:  # if simple molecule with only one component, set components manually
+        self._smiles = Chem.MolToSmiles(self)
+
+        if components is None and self._smiles.find(".") == -1:  # if simple molecule with only one component, set components manually
             components = [set(range(source.GetNumAtoms()))]
 
         self._components = components
@@ -51,7 +53,7 @@ class Molecule(Chem.Mol):
             self.set_kinetic_energy(kinetic_energy)
 
     def get_state(self):
-        state = {'ke': self.get_kinetic_energy(), 'ie': self.get_internal_energy()}
+        state = {'ke': self.get_kinetic_energy(), 'ie': self.get_internal_energy(), 'smiles': self._smiles}
         return state
 
     def get_mass(self):

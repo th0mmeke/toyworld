@@ -15,7 +15,7 @@ from kinetic_molecule import KineticMolecule
 
 class ChargedMolecule(KineticMolecule):
 
-    def __init__(self, source, internal_energy=0, kinetic_energy=0, canonize=True, components=None, base_molecule_radius=1):
+    def __init__(self, source, internal_energy=0, kinetic_energy=0, canonize=True, components=None, orientation=None, base_molecule_radius=1):
 
         self._base_molecule_radius = base_molecule_radius
 
@@ -26,7 +26,11 @@ class ChargedMolecule(KineticMolecule):
         super(KineticMolecule, self).__init__(source, internal_energy=internal_energy, canonize=canonize, components=components)  # set mass
         inertia = pm.moment_for_circle(self.get_mass(), 0, self.get_size(), (0, 0))
         self.body = pm.Body(self.get_mass(), inertia)
-        self.set_orientation(random.uniform(0, 2.0 * math.pi))
+        
+        if orientation is not None:
+            self.set_orientation(orientation)
+        else:
+            self.set_orientation(random.uniform(0, 2.0 * math.pi))
 
         for cluster in self.get_clusters():
             center = pm.Vec2d(self._get_cluster_centre(cluster))
@@ -47,8 +51,8 @@ class ChargedMolecule(KineticMolecule):
         self.body.angle = orientation
 
     def get_state(self):
-        state = super(KineticMolecule, self).get_state()
-        state.update({'speed': self.get_speed(), 'size': self.get_size(), 'orientation': self.get_orientation()})
+        state = super(ChargedMolecule, self).get_state()
+        state.update({'orientation': self.get_orientation()})
         return state
 
     def get_size(self):

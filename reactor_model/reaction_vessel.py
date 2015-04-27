@@ -113,6 +113,14 @@ class ReactionVessel(object):
         cPickle.dump({'t': 0, 'iteration': 0, 'state': self.get_state()}, self._f_states)
 
     def _write_data(self, reactions):
+        '''Dump the current block of information - reaction list to the data file, and state snapshot to states file
+
+        Each block in the data file has the following structure:
+        'block':{'start_block': int, 'end_block': int, 'reactions': list of reactions}
+
+        Each entry in the states file has this structure:
+        't': real, 'iteration': int, 'state': snapshot of state from self.get_state()'''
+
         if self.iteration >= self._next_write_iteration or self.iteration >= self.end_iteration:
             self._next_write_iteration = self.iteration + self._iteration_blocksize
             # Dump data to file
@@ -143,7 +151,7 @@ class ReactionVessel(object):
 
     def _apply_energy_model(self, energy_model, t):
         """Adjust the KE of each molecule in the reaction vessel according to the energy model and radiation rate.
-        The energy model's get_absoluate(t) method provides an energy input; the get_relative(t) proportional to a molecule's current KE.
+        The energy model's get_absolute(t) method provides an energy input; the get_relative(t) proportional to a molecule's current KE.
         """
         for mol in self.get_molecules():
             ie = mol.get_internal_energy()
@@ -207,6 +215,7 @@ class ReactionVessel(object):
                     weighted_options[option] = e
         logging.debug("The weighted options are: {}".format(weighted_options))
 
+        # TODO: do the uniform selection before the weighting for speed..
         if self._product_selection_strategy == "energy":
             return sample(weighted_options)
         else:

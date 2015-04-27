@@ -31,7 +31,6 @@ class SpatialReactionVessel(ReactionVessel):
     """
 
     reaction_vessel_size = 500  # -500->500
-    ratio_vessel_screen = 0.75  # 0.75
     molecule_collision_type = 1
     wall_collision_type = 2
 
@@ -39,14 +38,6 @@ class SpatialReactionVessel(ReactionVessel):
                  results_filename=os.devnull, states_filename=os.devnull):
 
         self.initial_average_ke = int(parameters.get('Energy'))
-        self._visualize = parameters.get('Visualize')
-        logging.info("Visualize is {}".format('ON' if self._visualize else 'OFF'))
-        self._show_force_vectors = parameters.get('ShowForceVectors')
-        self._show_orientation = parameters.get('ShowOrientation')
-        if self._visualize:
-            pygame.init()
-            screen_size = int(SpatialReactionVessel.reaction_vessel_size * SpatialReactionVessel.ratio_vessel_screen)
-            self._screen = pygame.display.set_mode((screen_size * 2, screen_size * 2))
 
         self._bodies = {}  # dictionary body:mol
         self._nothing_happening = 0
@@ -123,7 +114,6 @@ class SpatialReactionVessel(ReactionVessel):
             for shape in mol.body.shapes:
                 shape.collision_type = SpatialReactionVessel.molecule_collision_type
                 self._space.add(shape)
-            mol.color = 0, 0, 0
             self._space.add(mol.body)
             mol.tag = 1
 
@@ -143,29 +133,21 @@ class SpatialReactionVessel(ReactionVessel):
         return self._bodies.itervalues()
 
     def get_state(self):
+        '''Returns a snapshot of the current state for the reaction vessel
+        'locations': dictionary of molecule_id:position,
+        'molecule_states': list of molecule states (from mol.get_state())
+        '''
+
         state = {'locations': {mol.global_id: body.position for body, mol in self._bodies.iteritems()}}
         state['molecule_states'] = [mol.get_state() for mol in self.get_molecules()]
         return state
 
     def step(self):
 
-        if self._visualize:
-            for event in pygame.event.get():  # must call event.get() to prevent window freezing...
-                if event.type == QUIT:  # window close
-                    quit()
-
         self._t += self._delta_t
 
         self._space.step(self._delta_t)  # automatically trigger collision handler if required
         self._apply_energy_model(self._energy_object, self._delta_t)
-
-        if self._visualize:
-            self._screen.fill(pygame.color.THECOLORS["white"])
-            self._show_state()
-            image_filename = "save_{}.jpg".format(self._t)
-            logging.info("Writing save image {}".format(image_filename))
-            pygame.image.save(self._screen, image_filename)
-            pygame.display.flip()
 
         self._write_data(self._reactions)
         ke = self.get_total_ke()
@@ -176,34 +158,10 @@ class SpatialReactionVessel(ReactionVessel):
 
         if self.iteration >= self.end_iteration or self._nothing_happening > 10:
             self._write_final(self.iteration)
-            if self._visualize:
-                pygame.display.quit()
             del self._space
             if self._nothing_happening > 10:
                 logging.info("We'vvvve runnnnn outtttt offfff ennnnnnergyyyyy...")
                 raise ValueError
-
-    def _show_state(self):
-        for body, mol in self._bodies.iteritems():
-
-            for shape in mol.body.shapes:
-                x = body.position.x + shape.offset.x * 2.0
-                y = body.position.y + shape.offset.y * 2.0
-
-                # map [-reaction_vessel_size/2,reaction_vessel_size/2] to [0,self._screen.get_height()]"""
-                screen_x = int((x + SpatialReactionVessel.reaction_vessel_size) * SpatialReactionVessel.ratio_vessel_screen)
-                screen_y = int((y + SpatialReactionVessel.reaction_vessel_size) * SpatialReactionVessel.ratio_vessel_screen)
-
-                pygame.draw.circle(self._screen, mol.color, (screen_x, screen_y), int(shape.radius), 0)
-
-    def _show_ke(self):
-        ke = "{:.2f}".format(self.get_total_ke() / self.get_number_molecules())
-
-        font = pygame.font.Font(None, 36)
-        text = font.render(ke, 1, (10, 10, 10))
-        textpos = text.get_rect()
-        textpos.centerx = self._screen.get_rect().centerx
-        self._screen.blit(text, textpos)
 
     def discover_reaction(self, reactant_mols):
         """

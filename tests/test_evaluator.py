@@ -30,31 +30,13 @@ class TestEvaluator(unittest.TestCase):
         e = EvaluatorSubClass(True)
         self.assertTrue(e.is_partitioned())
 
-    def incr_load_results(self):
-        filename = os.path.join(config.TestDir, 'experiment-test-01.data')
-
-        results = {}
-        for block in Evaluator.incr_load_results(filename):
-            for k, v in block.iteritems():
-                if k in results.keys():
-                    for reaction in block['reactions']:
-                        results['reactions'].append(reaction)
-                else:
-                    results[k] = v
-
-        results2 = Evaluator.load_results(filename)
-        self.assertEqual(len(results['reactions']), len(results2['reactions']))
-        self.assertEqual(results.keys(), results2.keys())
-
     def test_checkComplete(self):
         self.assertTrue(Evaluator.check_complete(os.path.join(config.TestDir, 'experiment-test-01.data')))
         self.assertFalse(Evaluator.check_complete(os.path.join(config.TestDir, 'experiment-incomplete-01.data')))
 
     def test_CheckPartitions(self):
         results_filename = os.path.join(config.TestDir, 'experiment-test-01.data')
-        experiment_filename = os.path.join(config.TestDir, 'experiment_design.xml')
-        parameters = Parameters(ElementTree.parse(experiment_filename))
-        blocksize = int(parameters.get('IterationBlocksize'))
+        blocksize = 50
 
         # Test default of no specified partitions
         expected = Evaluator.load_results(results_filename)['reactions']
