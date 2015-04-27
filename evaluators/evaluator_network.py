@@ -39,34 +39,28 @@ class EvaluatorNetwork(Evaluator):
         nodes = reaction_network.number_of_nodes()
         edges = reaction_network.number_of_edges()
 
-        print("Nodes = {}, Edges = {}".format(nodes, edges))
-        print("In graph theory, the degree (or valency) of a vertex of a graph is the number of edges incident to the vertex, with loops counted twice. - Wikipedia")
-        print("Average reactants = {}, average products = {}, average degree = {}, standard deviation = {}".format(average_in_degree, average_out_degree, mean, math.sqrt(variance)))
-        print("Min degree of {} at node {}".format(min_degree[1], min_degree[0]))
-        print("Max degree of {} at node {}".format(max_degree[1], max_degree[0]))
+        print( "Nodes = {}, Edges = {}".format(nodes, edges))
+        print( "In graph theory, the degree (or valency) of a vertex of a graph is the number of edges incident to the vertex, with loops counted twice. - Wikipedia")
+        print( "Average reactants = {}, average products = {}, average degree = {}, standard deviation = {}".format(average_in_degree, average_out_degree, mean, math.sqrt(variance)))
+        print( "Min degree of {} at node {}".format(min_degree[1], min_degree[0]))
+        print( "Max degree of {} at node {}".format(max_degree[1], max_degree[0]))
         products = [reaction_network.node[x[1]]['smiles'] for x in reaction_network.out_edges(max_degree[0])]
-        print("Products of max degree node = {}".format(string.join(products, ", ")))
+        print( "Products of max degree node = {}\n".format(string.join(products, ", ")))
 
         number_strongly_connected_components = nx.number_strongly_connected_components(reaction_network)
-        print(
-            "In the mathematical theory of directed graphs, a graph is said to be strongly connected if every vertex is reachable \
-            from every other vertex. The strongly connected components of an arbitrary directed graph form a partition into subgraphs that are themselves strongly connected. - Wikipedia")
-        print("{} strongly connected components".format(number_strongly_connected_components))
-        print(nx.strongly_connected_components(reaction_network))
+        print( "In the mathematical theory of directed graphs, a graph is said to be strongly connected if every vertex is reachable from every other vertex. The strongly connected components of an arbitrary directed graph form a partition into subgraphs that are themselves strongly connected. - Wikipedia")
+        print( "{} strongly connected components\n".format(number_strongly_connected_components))
 
         number_weakly_connected_components = nx.number_weakly_connected_components(reaction_network)
-        print("A directed graph is called weakly connected if replacing all of its directed edges with undirected edges produces a connected \
-            (undirected) graph. - Wikipedia")
-        print(
-            "A weakly connected component is a maximal subgraph of a directed graph such that for every pair of vertices  u, v in the subgraph,\
-            there is an undirected path from u to v and a directed path from v to u - Wolfram MathWorld")
-        print("{} weakly connected components".format(number_weakly_connected_components))
+        print( "A directed graph is called weakly connected if replacing all of its directed edges with undirected edges produces a connected (undirected) graph. - Wikipedia")
+        print( "A weakly connected component is a maximal subgraph of a directed graph such that for every pair of vertices  u, v in the subgraph, there is an undirected path from u to v and a directed path from v to u - Wolfram MathWorld")
+        print( "{} weakly connected components\n".format(number_weakly_connected_components))
 
         undirected_reaction_network = nx.convert_node_labels_to_integers(nx.Graph(reaction_network))
         cliques = nx.find_cliques(undirected_reaction_network)
-        print("A k-clique community is the union of all cliques of size k that can be reached through adjacent (sharing k-1 nodes) k-cliques.")
+        print( "A k-clique community is the union of all cliques of size k that can be reached through adjacent (sharing k-1 nodes) k-cliques.")
         for k in range(2, 10):
-            print("{} {}-cliques".format(len(list(nx.k_clique_communities(undirected_reaction_network, k, cliques))), k))
+            print( "{} {}-cliques".format(len(list(nx.k_clique_communities(undirected_reaction_network, k, cliques))), k))
 
         # nx.draw(undirected_reaction_network)#,pos=nx.spring_layout(undirected_reaction_network))
         # plt.savefig("network.png")
