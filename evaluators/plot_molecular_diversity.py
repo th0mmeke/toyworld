@@ -28,9 +28,9 @@ class PlotMolecularDiversity(Plot):
         ax = f1.add_subplot(1, 1, 1)  # one row, one column, first plot
         ax.set_title('Diversity of Molecular Types')
 
-        ax.set_xlabel('Iterations')
+        ax.set_xlabel('Time')
         ax.set_ylabel('Diversity')
-        ax.set_xlim(left=0, right=20000)
+        ax.set_xlim(left=0, right=population.get_times()[-1])
 
         ax.plot(diversity, color=colors.cnames['slategray'])
         ax.grid()
