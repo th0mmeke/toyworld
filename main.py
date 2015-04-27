@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Run a simulation or evaluate the output of an earlier simulation run.
 
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     parent_parser.add_argument('-f', '--log_filename',
                                help="Filename for logging (relative to location of evaluation design file) (optional)")
 
-    evaluate = sys.argv[0] == "evaluate.py"
+    evaluate = os.path.basename(sys.argv[0]) == "evaluate.py"
 
     if evaluate:
         parser = argparse.ArgumentParser(parents=[parent_parser])
