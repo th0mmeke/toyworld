@@ -18,9 +18,9 @@ class DefaultEnergyModel(object):
         self._absolute_rate = float(parameters.get('EnergyInput'))
         logging.info("Default Energy Model with radiation rate of {}/second and absolute rate of {}/second".format(self._relative_rate, self._absolute_rate))
 
-    def get_absolute_input(self, initial_energy, t):
+    def get_absolute_input(self, initial_energy, delta_t):
         """Relative rate is relative to initial value"""
-        return self._absolute_rate * t
+        return self._absolute_rate * delta_t
 
-    def get_relative_output(self, initial_energy, t):
-        return initial_energy * self._relative_rate * t
+    def get_relative_output(self, initial_energy, delta_t):
+        return initial_energy * self._relative_rate * delta_t
