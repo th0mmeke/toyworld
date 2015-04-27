@@ -20,6 +20,7 @@ class PlotNewMoleculeTypes(Plot):
         cumulative_types = set()
 
         count = 0
+        previous_count = 0
         iteration = 0
         for block in Evaluator.incr_load_results(results_filename):
             for reaction in block['reactions']:
@@ -31,8 +32,10 @@ class PlotNewMoleculeTypes(Plot):
                 iteration += 1
 
                 if iteration % 50 == 0:
-                    molecular_types_difference.append(count)
-                    iterations.append(iteration)
+                    difference = count-previous_count
+                    previous_count = count
+                    molecular_types_difference.append(difference)
+                    iterations.append(reaction['t'])
 
         # Append final values
         if iteration % 50 != 0:
@@ -47,10 +50,10 @@ class PlotNewMoleculeTypes(Plot):
         ax = f1.add_subplot(1, 1, 1)  # one row, one column, first plot
         ax.set_title('New Molecular Types by time (initial average KE={:.2f})'.format(ke))
 
-        ax.set_xlabel('Iteration')
-        ax.set_ylabel('Quantity')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Number of New Types')
 
         ax.set_xlim(left=0, right=iterations[-1])
 
-        ax.plot(iterations, molecular_types_difference, color=colors.cnames['slategray'])
+        ax.plot(iterations, molecular_types_difference, color=colors.cnames['slategray'], marker=',', linestyle='None')
         ax.grid()
