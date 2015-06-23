@@ -72,7 +72,7 @@ class TestChargedMolecule(unittest.TestCase):
         mol.get_clusters()
 
         mol = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
-        clusters = mol1.get_clusters()
+        clusters = mol.get_clusters()
         self.assertEqual(33, len(clusters))
 
     def test_locations(self):
@@ -89,8 +89,8 @@ class TestChargedMolecule(unittest.TestCase):
     def test_charge(self):
         mol1 = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
         clusters = mol1.get_clusters()
-        for cluster in clusters:
-            print(mol1._get_cluster_charge(cluster))
+        # for cluster in clusters:
+            # print(mol1._get_cluster_charge(cluster))
 
 if __name__ == "__main__":
     unittest.main()
