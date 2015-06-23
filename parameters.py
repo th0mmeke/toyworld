@@ -42,9 +42,6 @@ class Parameters(object):
                 'recover': True,
                 'seed': None,
                 'StateRecordRate': 0.01,
-                'Visualize': False,
-                'ShowForceVectors': False,
-                'ShowOrientation': True,
             }
 
         if parameters_etree is None:

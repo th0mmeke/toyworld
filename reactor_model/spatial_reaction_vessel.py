@@ -12,8 +12,6 @@ import os
 from rdkit.Chem import AllChem as Chem
 
 import pymunk as pm
-import pygame
-from pygame.locals import *
 
 from reactor_model.reaction_vessel import ReactionVessel
 from ULPS import Float_t

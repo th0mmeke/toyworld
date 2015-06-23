@@ -45,7 +45,6 @@ class TestChargedMolecule(unittest.TestCase):
         mol.set_kinetic_energy(0)
 
     def testGetSet(self):
-
         mol = ChargedMolecule('O')
         v = 3, 4
         mol.set_velocity(*v)
@@ -72,6 +71,10 @@ class TestChargedMolecule(unittest.TestCase):
         mol = ChargedMolecule("[O-]")
         mol.get_clusters()
 
+        mol = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
+        clusters = mol1.get_clusters()
+        self.assertEqual(33, len(clusters))
+
     def test_locations(self):
         mol = ChargedMolecule("C1CCCC1")
 
@@ -79,8 +82,15 @@ class TestChargedMolecule(unittest.TestCase):
             cluster_centre = mol._get_cluster_centre(cluster_ids)
 
         mol1 = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
-        for cluster_ids in mol1.get_clusters():
+        clusters = mol1.get_clusters()
+        for cluster_ids in clusters:
             cluster_centre = mol1._get_cluster_centre(cluster_ids)
+
+    def test_charge(self):
+        mol1 = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
+        clusters = mol1.get_clusters()
+        for cluster in clusters:
+            print(mol1._get_cluster_charge(cluster))
 
 if __name__ == "__main__":
     unittest.main()
