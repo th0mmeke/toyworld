@@ -6,11 +6,10 @@ Created on 6/05/2013
 
 import logging
 
-import numpy as np
 import pygame
+import os
 
 from evaluator import Evaluator
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
 from charged_molecule import ChargedMolecule
 from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
 
@@ -22,6 +21,12 @@ class EvaluatorVisualiser(Evaluator):
     __metaclass__ = ABCMeta
 
     ratio_vessel_screen = 0.75
+
+    def __init__(self, partition=False):
+        super(EvaluatorVisualiser, self).__init__(partition)
+        pygame.init()
+        screen_size = int(SpatialReactionVessel.reaction_vessel_size * EvaluatorVisualiser.ratio_vessel_screen)
+        self._screen = pygame.display.set_mode((screen_size * 2, screen_size * 2))
 
     def _show_state(self, locations, molecule_states):
 
@@ -53,15 +58,16 @@ class EvaluatorVisualiser(Evaluator):
         '''Visualise molecules in reaction vessel'''
 
         states_filename = kwargs['states_filename']
-        final_t = Evaluator.get_final_summary(results_filename)['t']
-        delta_t = final_t / 50
-        logging.info("Final t = {}, delta_t = {}".format(final_t, delta_t))
+        dirname = os.path.dirname(states_filename)
+
+        try:
+            final_t = Evaluator.get_final_summary(results_filename)['t']
+            delta_t = final_t / 50
+            logging.info("Final t = {}, delta_t = {}".format(final_t, delta_t))
+        except:
+            delta_t = 1.0
+
         next_t = 0
-
-        pygame.init()
-        screen_size = int(SpatialReactionVessel.reaction_vessel_size * EvaluatorVisualiser.ratio_vessel_screen)
-        self._screen = pygame.display.set_mode((screen_size * 2, screen_size * 2))
-
 
         for block in Evaluator.incr_load_states(states_filename):
 
@@ -69,6 +75,7 @@ class EvaluatorVisualiser(Evaluator):
             # Each state is {'locations': {molecule id:position}, 'molecule_states':[mol.get_state()]}
 
             t = block['t']
+
             state = block['state']
 
             if t >= next_t:
@@ -77,8 +84,8 @@ class EvaluatorVisualiser(Evaluator):
 
                 self._screen.fill(pygame.color.THECOLORS["white"])
                 self._show_state(locations, molecule_states)
-                image_filename = "save_{}.jpg".format(t)
-                logging.info("Writing save image {}".format(image_filename))
+                image_filename = os.path.join(dirname, "save_{}.jpg".format(t))
+                logging.info("Writing image {}".format(image_filename))
                 pygame.image.save(self._screen, image_filename)
                 pygame.display.flip()
 
