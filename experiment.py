@@ -17,7 +17,6 @@ from reactor_model.reaction_vessel_factory import ReactionVesselFactory
 
 
 class Experiment(object):
-
     """Run one experiment with same method, population and reactions, possibly with multiple repeats"""
 
     def __init__(self, dirname, experiment_parameters, common=None, factor_definitions=None):
@@ -41,9 +40,11 @@ class Experiment(object):
             experiment_parameters, self._factors, self._factor_titles = self.factors_to_parameters(experiment_parameters, common, factor_definitions)
 
         self._parameters = Parameters(experiment_parameters)
-        self._name = self._parameters.get_attrib('name')
+        self.name = self._parameters.get_attrib('name')
         self.end_iteration = int(self._parameters.get('Iterations'))
+        self.end_time = int(self._parameters.get('Time'))
         self.repeats = int(self._parameters.get_attrib('repeats'))
+
 
     def factors_to_parameters(self, parameters, common, factor_definitions):
         """Convert a factor-based design to fully-specified parameters"""
@@ -111,27 +112,36 @@ class Experiment(object):
 
         results_filename = self.get_results_filename(repeat)
         states_filename = self.get_states_filename(repeat)
+        iteration_blocksize = next_write = int(self._parameters.get('IterationBlocksize'))
 
-        reaction_vessel = ReactionVesselFactory.new(population=original_population,
-                                                    results_filename=results_filename,
-                                                    states_filename=states_filename,
-                                                    parameters=self._parameters)
+        reaction_vessel = ReactionVesselFactory.new(population=original_population, parameters=self._parameters)
 
-        reaction_vessel.set_end_iteration(self.end_iteration)
-
-        logging.info("Running repeat #{} of {} iterations, and writing results to {} and states to {}".format(repeat + 1, self.end_iteration, results_filename, states_filename))
+        logging.info("Running repeat #{} of {} iterations and maximum time of {}, and writing results to {} and states to {}".format(repeat + 1, self.end_iteration, self.end_time, results_filename, states_filename))
 
         initial_ke = reaction_vessel.get_total_ke()
         initial_pe = reaction_vessel.get_total_pe()
         initial_ie = reaction_vessel.get_total_ie()
 
+        f_data = open(results_filename, "wb")
+        f_states = open(states_filename, "wb")
+
+        reaction_vessel.write_initial(original_population, self._parameters, f_data, f_states)
         reaction_vessel.step()
-        while reaction_vessel.iteration < self.end_iteration:
-            try:
-                reaction_vessel.step()
-            except ValueError:
-                logging.info("Ending at iteration {} - ran out of reactions...".format(reaction_vessel.iteration))
-                break
+        while reaction_vessel.iteration < self.end_iteration and reaction_vessel.t < self.end_time:
+            reaction_vessel.step()
+            if reaction_vessel.iteration >= next_write:
+                next_write = reaction_vessel.iteration + iteration_blocksize
+                reaction_vessel.write_data(f_data, f_states)
+        reaction_vessel.write_data(f_data, f_states)
+
+        reaction_vessel.write_final(f_data)
+
+
+        final_energy = reaction_vessel.get_total_ke() + \
+                       reaction_vessel.get_total_pe() + \
+                       reaction_vessel.get_total_ie() - \
+                       reaction_vessel.get_total_energy_input() + \
+                       reaction_vessel.get_total_energy_output()
 
         logging.info('Finishing iteration = {}'.format(reaction_vessel.iteration))
         logging.info('{:>10}{:>15}{:>15}'.format('', 'initial', 'final'))
@@ -140,15 +150,14 @@ class Experiment(object):
         logging.info('{:>10}{:>15.1f}{:>15.1f}'.format('IE', initial_ie, reaction_vessel.get_total_ie()))
         logging.info('{:>10}{:>15}{:>15.1f}'.format('+E', '', -reaction_vessel.get_total_energy_input()))
         logging.info('{:>10}{:>15}{:>15.1f}'.format('-E', '', reaction_vessel.get_total_energy_output()))
-        logging.info('{:>10}{:>15.1f}{:>15.1f}'.format('Total', initial_ke + initial_pe + initial_ie, reaction_vessel.get_total_ke() + reaction_vessel.get_total_pe() +
-                                                       reaction_vessel.get_total_ie() - reaction_vessel.get_total_energy_input() + reaction_vessel.get_total_energy_output()))
+        logging.info('{:>10}{:>15.1f}{:>15.1f}'.format('Total', initial_ke + initial_pe + initial_ie, final_energy))
 
         del reaction_vessel
 
         logging.info("Finished repeat #{}".format(repeat + 1))
 
     def get_results_filename(self, suffix=0):
-        return "{}-{:0>2}.data".format(os.path.join(self._dirname, self._name), suffix + 1)
+        return "{}-{:0>2}.data".format(os.path.join(self._dirname, self.name), suffix + 1)
 
     def get_states_filename(self, suffix=0):
-        return "{}-{:0>2}.states".format(os.path.join(self._dirname, self._name), suffix + 1)
+        return "{}-{:0>2}.states".format(os.path.join(self._dirname, self.name), suffix + 1)

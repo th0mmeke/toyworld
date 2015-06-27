@@ -24,11 +24,10 @@ class AspatialReactionVessel(ReactionVessel):
     Zero-dimensional reaction vessel modelling a well-mixed container.
     """
 
-    def __init__(self, chemistry, population, parameters=Parameters(), product_selection_strategy="energy", results_filename=os.devnull, states_filename=os.devnull):
+    def __init__(self, chemistry, population, parameters=Parameters(), product_selection_strategy="energy"):
 
         self.initial_average_ke = int(parameters.get('Energy'))
-        super(AspatialReactionVessel, self).__init__(chemistry, population, parameters=parameters,
-                                                     product_selection_strategy=product_selection_strategy, results_filename=results_filename, states_filename=states_filename)
+        super(AspatialReactionVessel, self).__init__(chemistry, population, parameters=parameters, product_selection_strategy=product_selection_strategy)
 
         logging.info("Aspatial Reaction Vessel with initial KE = {}".format(self.initial_average_ke))
 
@@ -36,7 +35,6 @@ class AspatialReactionVessel(ReactionVessel):
         if population is not None:
             self.add_molecules([Molecule(smiles, kinetic_energy=self.initial_average_ke) for smiles in population.get_population()])
             self._energy_input = 0
-        self._write_initial(parameters, population)
 
     def add_molecules(self, molecules):
         super(AspatialReactionVessel, self).add_molecules(molecules)
@@ -56,7 +54,7 @@ class AspatialReactionVessel(ReactionVessel):
 
         logging.debug("ke={},pe={},ie={}, input={}, output={}".format(self.get_total_ke(), self.get_total_pe(), self.get_total_ie(), self.get_total_energy_input(), self.get_total_energy_output()))
 
-        self._t += self._delta_t
+        self.t += self._delta_t
         self.iteration += 1
 
         reactant_mols = random.sample(self._molecules, 2)
@@ -72,13 +70,9 @@ class AspatialReactionVessel(ReactionVessel):
         logging.info("{}: Reaction between {} giving {}".format(self.iteration, [str(mol) for mol in reactant_mols], [str(mol) for mol in product_mols]))
         reactants = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in reactant_mols]
         products = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in product_mols]
-        reaction = {'iteration': self.iteration, 't': self._t, 'reactants': reactants, 'products': products}
+        reaction = {'iteration': self.iteration, 't': self.t, 'reactants': reactants, 'products': products}
 
         self._reactions.append(reaction)
-
-        self._write_data(self._reactions)
-        if self.iteration >= self.end_iteration:
-            self._write_final(self.end_iteration)
 
     def get_state(self):
         return {'molecule_states': [mol.get_state() for mol in self.get_molecules()]}

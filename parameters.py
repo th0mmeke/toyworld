@@ -18,16 +18,22 @@ class Parameters(object):
 
     def __init__(self, parameters_etree=None, defaults=None):
         """:param parameters_etree: Set of parameters as an ElementTree
-        :param defaults: Dictionary of default values to use if any requested value is missing - {key:value}"""
+        :param defaults: Dictionary of default values to use if any requested value is missing - {key:value}
+
+        Energy: Initial KE
+        EnergyModel:
+        Iterations: Maximum number of model iterations to perform
+        Time: Maximum model time
+        """
 
         if defaults is not None:
             self._defaults = defaults
         else:
             self._defaults = {
-                'CollisionLimit': 0,
                 'Energy': 300,
                 'EnergyModel': 'energy_model.default_energy_model.DefaultEnergyModel',
                 'Iterations': 10000,
+                'Time': 1000,
                 'RadiationRate': 0.0,
                 'EnergyInput': 0.0,
                 'Reactions': 'chemistry_model.emergent_reactions.EmergentReactions',

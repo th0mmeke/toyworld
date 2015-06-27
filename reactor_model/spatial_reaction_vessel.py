@@ -32,8 +32,7 @@ class SpatialReactionVessel(ReactionVessel):
     molecule_collision_type = 1
     wall_collision_type = 2
 
-    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy",
-                 results_filename=os.devnull, states_filename=os.devnull):
+    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy"):
 
         self.initial_average_ke = int(parameters.get('Energy'))
 
@@ -56,9 +55,9 @@ class SpatialReactionVessel(ReactionVessel):
         self._space.add(self._walls)
 
         super(SpatialReactionVessel, self).__init__(chemistry, population, parameters=parameters,
-                                                    product_selection_strategy=product_selection_strategy,
-                                                    results_filename=results_filename, states_filename=states_filename)
+                                                    product_selection_strategy=product_selection_strategy)
 
+        self._end_iteration = int(parameters.get('Iterations'))
         self._space.add_collision_handler(SpatialReactionVessel.molecule_collision_type,
                                           SpatialReactionVessel.molecule_collision_type,
                                           begin=SpatialReactionVessel._begin_molecule_collision_handler,
@@ -92,7 +91,6 @@ class SpatialReactionVessel(ReactionVessel):
         self._energy_input = self._energy_output = 0  # reset after adding molecules
 
         logging.info("Spatial Reaction Vessel with initial KE = {}".format(self.initial_average_ke))
-        self._write_initial(parameters, population)
 
     def add_molecules(self, molecules, locations=None):
 
@@ -142,24 +140,9 @@ class SpatialReactionVessel(ReactionVessel):
 
     def step(self):
 
-        self._t += self._delta_t
-
+        self.t += self._delta_t
         self._space.step(self._delta_t)  # automatically trigger collision handler if required
         self._apply_energy_model(self._energy_object, self._delta_t)
-
-        self._write_data(self._reactions)
-        ke = self.get_total_ke()
-        if ke / (1.0 * len(self._bodies)) < 10.0:  # we're not goin' to make it...
-            self._nothing_happening += 1
-        else:  # reset the count
-            self._nothing_happening = 0
-
-        if self.iteration >= self.end_iteration or self._nothing_happening > 10:
-            self._write_final(self.iteration)
-            del self._space
-            if self._nothing_happening > 10:
-                logging.info("We'vvvve runnnnn outtttt offfff ennnnnnergyyyyy...")
-                raise ValueError
 
     def discover_reaction(self, reactant_mols):
         """
@@ -188,8 +171,7 @@ class SpatialReactionVessel(ReactionVessel):
         # Energy available for a reaction = internal energy + energy of collision - energy of centre of mass
         available_energy_for_reaction = initial_ie + initial_ke - Kinetics2D.get_CM_energy(reactant_mols)
         logging.debug("Available energy for reaction = IE {} + KE {} - CM {} = {}".format(initial_ie, initial_ke,
-                                                                                          Kinetics2D.get_CM_energy(
-                                                                                              reactant_mols),
+                                                                                          Kinetics2D.get_CM_energy(reactant_mols),
                                                                                           available_energy_for_reaction))
 
         reaction_options = self.reaction_model.get_reaction_options(reactant_mols)
@@ -242,7 +224,7 @@ class SpatialReactionVessel(ReactionVessel):
     @classmethod
     def _begin_molecule_collision_handler(cls, space, arbiter, context3, *args, **kwargs):
 
-        if context3.iteration >= context3.end_iteration:
+        if context3.iteration >= context3._end_iteration: # may be part-way through a sequence of reactions - do not return more than asked for
             return False
 
         try:
@@ -271,13 +253,13 @@ class SpatialReactionVessel(ReactionVessel):
             mol_location = collision_location + mol.get_velocity() * context3._delta_t * 0.01
             context3.add_molecules([mol], locations=[mol_location])  # add it in
 
-        logging.info("t={}, iteration={} (average ke={:.2f}): Reaction between {} giving {}".format(context3._t, context3.iteration,
+        logging.info("t={}, iteration={} (average ke={:.2f}): Reaction between {} giving {}".format(context3.t, context3.iteration,
                                                                                                     context3.get_total_ke() / context3.get_number_molecules(),
                                                                                                     [str(mol) for mol in reactant_mols],
                                                                                                     [str(mol) for mol in product_mols]))
         reactants = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in reactant_mols]
         products = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in product_mols]
-        reaction = {'iteration': context3.iteration, 't': context3._t, 'reaction_site': collision_location, 'reactants': reactants, 'products': products}
+        reaction = {'iteration': context3.iteration, 't': context3.t, 'reaction_site': collision_location, 'reactants': reactants, 'products': products}
 
         context3._reactions.append(reaction)
 

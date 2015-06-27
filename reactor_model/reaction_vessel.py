@@ -25,7 +25,7 @@ class ReactionVessel(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy", results_filename=os.devnull, states_filename=os.devnull):
+    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy"):
 
         self._product_selection_strategy = product_selection_strategy.lower()
         self.chemistry = chemistry
@@ -35,7 +35,6 @@ class ReactionVessel(object):
         reactions_module, reactions_class = parameters.get('Reactions').rsplit('.', 1)
         self.reaction_model = getattr(importlib.import_module(reactions_module), reactions_class)(chemistry)
 
-        self._state_record_rate = float(parameters.get('StateRecordRate'))
         self._molecule_module, self._molecule_class = parameters.get('Molecule').rsplit(".", 1)
         energy_module, energy_class = parameters.get('EnergyModel').rsplit('.', 1)
         self._energy_object = getattr(importlib.import_module(energy_module), energy_class)(parameters)
@@ -43,24 +42,12 @@ class ReactionVessel(object):
         reactions_module, reactions_class = parameters.get('Reactions').rsplit('.', 1)
         self.reaction_model = getattr(importlib.import_module(reactions_module), reactions_class)(chemistry)
 
-        self.iteration = self._previous_write_iteration = 0
-        self._iteration_blocksize = int(parameters.get('IterationBlocksize'))
-        self._next_write_iteration = self._iteration_blocksize
-
-        self._t = 0
+        self.iteration = self._last_write = self.t = 0
         self._delta_t = float(parameters.get('DeltaT'))
+        self._state_record_rate = float(parameters.get('StateRecordRate'))
         self._next_frame = self._state_record_rate  # Experiment has already written out the initial state, so we want to start off after that
 
         self._reactions = []
-        self._f_data = open(results_filename, "wb")
-        self._f_states = open(states_filename, "wb")
-
-    def __del__(self):
-        self._f_states.close()
-        self._f_data.close()
-
-    def set_end_iteration(self, end_iteration):
-        self.end_iteration = end_iteration
 
     def get_total_energy_input(self):
         return self._energy_input
@@ -102,17 +89,23 @@ class ReactionVessel(object):
     def remove_molecules(self, molecules):
         pass
 
-    def _write_initial(self, parameters, population):
+    def write_initial(self, population, parameters, f_data, f_states):
+        '''Record the initial starting conditions.
+        :param population: the initial population. Can't assume that the reaction vessel will have this as a class variable
+        :param parameters: likewise the experiment parameters for this run with this reaction vessel
+        :param f_data: the file handle of the output file
+        :return:
+        '''
         cPickle.dump({'xml_parameters': parameters.to_xml(),
                       'initial_population': population,
                       'initial_kinetic_energy': self.get_total_ke(),
                       'initial_potential_energy': self.get_total_pe(),
-                      'smiles_map': self.get_mol_to_SMILES_map()}, self._f_data, 2)
+                      'smiles_map': self.get_mol_to_SMILES_map()}, f_data, 2)
 
         logging.info("Recording initial state of molecules in reaction vessel")
-        cPickle.dump({'t': 0, 'iteration': 0, 'state': self.get_state()}, self._f_states)
+        cPickle.dump({'t': 0, 'iteration': 0, 'state': self.get_state()}, f_states)
 
-    def _write_data(self, reactions):
+    def write_data(self, f_data, f_states):
         '''Dump the current block of information - reaction list to the data file, and state snapshot to states file
 
         Each block in the data file has the following structure:
@@ -121,33 +114,30 @@ class ReactionVessel(object):
         Each entry in the states file has this structure:
         't': real, 'iteration': int, 'state': snapshot of state from self.get_state()'''
 
-        if self.iteration >= self._next_write_iteration or self.iteration >= self.end_iteration:
-            self._next_write_iteration = self.iteration + self._iteration_blocksize
-            # Dump data to file
-            cPickle.dump({'block': {'start_block': self._previous_write_iteration, 'end_block': self.iteration, 'reactions': self._reactions}}, self._f_data, 2)
-            cPickle.dump({'t': self._t, 'iteration': self.iteration, 'state': self.get_state()}, self._f_states)
-            self._previous_write_iteration = self.iteration + 1
-            self._f_data.flush()  # force python file write
-            os.fsync(self._f_data.fileno())  # force OS file write
-            self._f_states.flush()
-            os.fsync(self._f_states.fileno())
-            del self._reactions
-            self._reactions = []
+        cPickle.dump({'block': {'start_block': self._last_write, 'end_block': self.iteration, 'reactions': self._reactions}}, f_data, 2)
+        cPickle.dump({'t': self.t, 'iteration': self.iteration, 'state': self.get_state()}, f_states)
+        self._last_write = self.iteration + 1
+        f_data.flush()  # force python file write
+        os.fsync(f_data.fileno())  # force OS file write
+        f_states.flush()
+        os.fsync(f_states.fileno())
+        del self._reactions
+        self._reactions = []
 
-    def _write_final(self, end_iteration):
+    def write_final(self, f_data):
         """If reached end successfully, write out final summary"""
-        logging.info("Writing final summary to data file, ending at iteration {}".format(end_iteration))
+        logging.info("Writing final summary to data file, ending at iteration {} and time {}".format(self.iteration, self.t))
         end_state = {'final_kinetic_energy': self.get_total_ke(),
                      'final_potential_energy': self.get_total_pe(),
                      'final_internal_energy': self.get_total_ie(),
                      'number_molecules': self.get_number_molecules(),
                      'energy_input': self.get_total_energy_input(),
                      'energy_output': self.get_total_energy_output(),
-                     'iterations_completed': end_iteration,
-                     't': self._t}
-        cPickle.dump(end_state, self._f_data, 2)
-        self._f_data.flush()  # force python file write
-        os.fsync(self._f_data.fileno())  # force OS file write
+                     'iterations_completed': self.iteration,
+                     't': self.t}
+        cPickle.dump(end_state, f_data, 2)
+        f_data.flush()  # force python file write
+        os.fsync(f_data.fileno())  # force OS file write
 
     def _apply_energy_model(self, energy_model, t):
         """Adjust the KE of each molecule in the reaction vessel according to the energy model and radiation rate.

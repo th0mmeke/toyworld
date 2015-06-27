@@ -21,10 +21,9 @@ class ChargeReactionVessel(SpatialReactionVessel):
     distance_cutoff = 50.0
     magnitude_cutoff = 1E-5
 
-    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy", results_filename=os.devnull, states_filename=os.devnull):
+    def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy"):
 
-        super(ChargeReactionVessel, self).__init__(chemistry, population, parameters=parameters,
-                                                   product_selection_strategy=product_selection_strategy, results_filename=results_filename, states_filename=states_filename)
+        super(ChargeReactionVessel, self).__init__(chemistry, population, parameters=parameters, product_selection_strategy=product_selection_strategy)
         self._dipole_force_constant = float(parameters.get('DipoleForceConstant'))
         logging.info("ChargeReactionVessel with dipole force of {} and delta_t of {}".format(self._dipole_force_constant, self._delta_t))
 

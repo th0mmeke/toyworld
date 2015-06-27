@@ -22,4 +22,4 @@ if __name__ == '__main__':
         values = {}
         for a in formation_energies:
             values[a.tag] = a.text
-        print("{},{},{},{}".format(experiment._name, values['Single'], values['Double'], values["Triple"]))
+        print("{},{},{},{}".format(experiment.name, values['Single'], values['Double'], values["Triple"]))

@@ -3,7 +3,6 @@
         <Iterations>20000</Iterations>
         <PopulationFilename>mixed_population.xml</PopulationFilename>
         <Reactions>chemistry_model.emergent_reactions.EmergentReactions</Reactions>
-        <CollisionLimit>20000</CollisionLimit>
     </Common>
     <Factors>
         <Factor key="productstrategy">

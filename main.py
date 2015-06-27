@@ -65,7 +65,7 @@ def evaluate_experiments(experiments, evaluations, dirname, output):
             experiment_partitions = [None]
 
         logging.info(
-            "Evaluating {} with {} repeats and results from {}".format(experiment._name, experiment.repeats, dirname))
+            "Evaluating {} with {} repeats and results from {}".format(experiment.name, experiment.repeats, dirname))
 
         for repeat in range(experiment.repeats):
             data_filename = experiment.get_results_filename(repeat)
@@ -80,13 +80,13 @@ def evaluate_experiments(experiments, evaluations, dirname, output):
                     selected_partitions = (experiment_partitions if evaluation.is_partitioned() else [None])
 
                     for partition in selected_partitions:
-                        experiment_details = [experiment._name, str(repeat)]
+                        experiment_details = [experiment.name, str(repeat)]
 
                         if partition is None:
                             experiment_details.extend(["0", str(experiment.end_iteration)])
-                            output_filename = os.path.join(dirname, "{}-{}-{}.eps".format(evaluator_class, experiment._name, repeat))
+                            output_filename = os.path.join(dirname, "{}-{}-{}.eps".format(evaluator_class, experiment.name, repeat))
                         else:
-                            output_filename = os.path.join(dirname, "{}-{}-{}-{}.eps".format(evaluator_class, experiment._name, repeat, partition[0]['start']))
+                            output_filename = os.path.join(dirname, "{}-{}-{}-{}.eps".format(evaluator_class, experiment.name, repeat, partition[0]['start']))
                             experiment_details.extend([str(partition[0]['start']), str(partition[0]['end'])])
 
                         if len(experiment.get_factors()) > 0:
