@@ -42,10 +42,8 @@ class ReactionVessel(object):
         reactions_module, reactions_class = parameters.get('Reactions').rsplit('.', 1)
         self.reaction_model = getattr(importlib.import_module(reactions_module), reactions_class)(chemistry)
 
-        self.iteration = self._last_write = self.t = 0
+        self.iteration = self.t = 0
         self._delta_t = float(parameters.get('DeltaT'))
-        self._state_record_rate = float(parameters.get('StateRecordRate'))
-        self._next_frame = self._state_record_rate  # Experiment has already written out the initial state, so we want to start off after that
 
         self._reactions = []
 
@@ -105,24 +103,28 @@ class ReactionVessel(object):
         logging.info("Recording initial state of molecules in reaction vessel")
         cPickle.dump({'t': 0, 'iteration': 0, 'state': self.get_state()}, f_states)
 
-    def write_data(self, f_data, f_states):
-        '''Dump the current block of information - reaction list to the data file, and state snapshot to states file
+    def write_reactions(self, f_data, last_write):
+        '''Dump the reaction list to the data file
 
         Each block in the data file has the following structure:
         'block':{'start_block': int, 'end_block': int, 'reactions': list of reactions}
+        '''
+
+        cPickle.dump({'block': {'start_block': last_write, 'end_block': self.iteration, 'reactions': self._reactions}}, f_data, 2)
+        f_data.flush()  # force python file write
+        os.fsync(f_data.fileno())  # force OS file write
+        del self._reactions
+        self._reactions = []
+
+    def write_state(self, f_states):
+        '''Dump a state snapshot to states file
 
         Each entry in the states file has this structure:
         't': real, 'iteration': int, 'state': snapshot of state from self.get_state()'''
 
-        cPickle.dump({'block': {'start_block': self._last_write, 'end_block': self.iteration, 'reactions': self._reactions}}, f_data, 2)
         cPickle.dump({'t': self.t, 'iteration': self.iteration, 'state': self.get_state()}, f_states)
-        self._last_write = self.iteration + 1
-        f_data.flush()  # force python file write
-        os.fsync(f_data.fileno())  # force OS file write
         f_states.flush()
         os.fsync(f_states.fileno())
-        del self._reactions
-        self._reactions = []
 
     def write_final(self, f_data):
         """If reached end successfully, write out final summary"""

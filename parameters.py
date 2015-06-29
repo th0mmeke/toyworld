@@ -47,7 +47,7 @@ class Parameters(object):
                 'IterationBlocksize': 50,
                 'recover': True,
                 'seed': None,
-                'StateRecordRate': 0.01,
+                'StateRecordRate': 10.0,
             }
 
         if parameters_etree is None:

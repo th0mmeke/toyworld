@@ -113,6 +113,7 @@ class Experiment(object):
         results_filename = self.get_results_filename(repeat)
         states_filename = self.get_states_filename(repeat)
         iteration_blocksize = next_write = int(self._parameters.get('IterationBlocksize'))
+        state_record_rate = next_state_write = float(self._parameters.get('StateRecordRate'))
 
         reaction_vessel = ReactionVesselFactory.new(population=original_population, parameters=self._parameters)
 
@@ -126,16 +127,20 @@ class Experiment(object):
         f_states = open(states_filename, "wb")
 
         reaction_vessel.write_initial(original_population, self._parameters, f_data, f_states)
-        reaction_vessel.step()
+
         while reaction_vessel.iteration < self.end_iteration and reaction_vessel.t < self.end_time:
             reaction_vessel.step()
             if reaction_vessel.iteration >= next_write:
-                next_write = reaction_vessel.iteration + iteration_blocksize
-                reaction_vessel.write_data(f_data, f_states)
-        reaction_vessel.write_data(f_data, f_states)
+                reaction_vessel.write_reactions(f_data, reaction_vessel.iteration - iteration_blocksize)
+                logging.info("Writing reaction block at iteration {}-{}".format(reaction_vessel.iteration - iteration_blocksize, reaction_vessel.iteration))
+                next_write += iteration_blocksize
+            if reaction_vessel.t >= next_state_write:
+                reaction_vessel.write_state(f_states)
+                next_state_write = reaction_vessel.t + state_record_rate
+                logging.info("Writing state at time {} (next write at {})".format(reaction_vessel.t, next_state_write))
 
+        reaction_vessel.write_reactions(f_data, reaction_vessel.iteration - iteration_blocksize)
         reaction_vessel.write_final(f_data)
-
 
         final_energy = reaction_vessel.get_total_ke() + \
                        reaction_vessel.get_total_pe() + \
