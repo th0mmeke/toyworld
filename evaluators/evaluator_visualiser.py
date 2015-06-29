@@ -24,9 +24,6 @@ class EvaluatorVisualiser(Evaluator):
 
     def __init__(self, partition=False):
         super(EvaluatorVisualiser, self).__init__(partition)
-        pygame.init()
-        screen_size = int(SpatialReactionVessel.reaction_vessel_size * EvaluatorVisualiser.ratio_vessel_screen)
-        self._screen = pygame.display.set_mode((screen_size * 2, screen_size * 2))
 
     def _show_state(self, locations, molecule_states):
 
@@ -66,6 +63,10 @@ class EvaluatorVisualiser(Evaluator):
             logging.info("Final t = {}, delta_t = {}".format(final_t, delta_t))
         except:
             delta_t = 1.0
+
+        pygame.init()
+        screen_size = int(SpatialReactionVessel.reaction_vessel_size * EvaluatorVisualiser.ratio_vessel_screen)
+        self._screen = pygame.display.set_mode((screen_size * 2, screen_size * 2))
 
         next_t = 0
 
