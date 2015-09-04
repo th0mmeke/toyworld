@@ -79,18 +79,18 @@ class TestChargedMolecule(unittest.TestCase):
         mol = ChargedMolecule("C1CCCC1")
 
         for cluster_ids in mol.get_clusters():
-            cluster_centre = mol._get_cluster_centre(cluster_ids)
+            mol._get_cluster_centre(cluster_ids)
 
         mol1 = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
         clusters = mol1.get_clusters()
         for cluster_ids in clusters:
-            cluster_centre = mol1._get_cluster_centre(cluster_ids)
+            mol1._get_cluster_centre(cluster_ids)
 
     def test_charge(self):
         mol1 = ChargedMolecule("CC(=O)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC[C@@H]4[C@@]3(CCC(=O)C4)C)C")
         clusters = mol1.get_clusters()
-        # for cluster in clusters:
-            # print(mol1._get_cluster_charge(cluster))
+        #for cluster in clusters:
+            #print(mol1._get_cluster_charge(cluster))
 
 if __name__ == "__main__":
     unittest.main()

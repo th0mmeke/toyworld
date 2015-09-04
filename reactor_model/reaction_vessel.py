@@ -17,7 +17,6 @@ from parameters import Parameters
 
 
 class ReactionVessel(object):
-
     """
     Abstract class for Reaction Vessels.
     Methods for quantities and concentrations of molecules, and for tracking energy inputs and outputs.
@@ -191,20 +190,14 @@ class ReactionVessel(object):
 
             return None
 
-        logging.debug(
-            "Selecting reaction from a population of {} items, with reaction energy of {}".format(len(reaction_options),
-                                                                                                  reaction_energy))
+        logging.debug("Selecting reaction from a population of {} items, with reaction energy of {}".format(len(reaction_options), reaction_energy))
         if len(reaction_options) == 1 and reaction_options[0].get_energy_delta() == 0:  # a non-reactive collision
             return None
 
         weighted_options = {}
         for option in reaction_options:
-            if option.get_energy_delta() < 0:
-                weighted_options[option] = -option.get_energy_delta()
-            else:
-                e = reaction_energy - option.get_energy_delta()
-                if e > 0:
-                    weighted_options[option] = e
+            weighted_options[option] = self.reaction_model.weight_option(reaction_energy, option.get_energy_delta())
+
         logging.debug("The weighted options are: {}".format(weighted_options))
 
         # TODO: do the uniform selection before the weighting for speed..

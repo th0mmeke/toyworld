@@ -53,6 +53,7 @@ class ChargeReactionVessel(SpatialReactionVessel):
 
                             body.apply_impulse(force_vector, shape_position)  # apply force at an offset (world-coordinates)
                             body.force_vector.append((shape_position, force_vector))
+            print(body.force_vector)
 
         super(ChargeReactionVessel, self).step()
 
