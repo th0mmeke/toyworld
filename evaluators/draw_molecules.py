@@ -37,4 +37,4 @@ class DrawMolecules(Evaluator):
                 max_atoms = mol.GetNumAtoms()
         logging.info("Longest molecule found is {}".format(Chem.MolToSmiles(max_mol)))
         Chem.Compute2DCoords(max_mol)
-        Draw.MolToFile(max_mol, os.path.splitext(results_filename)[0] + "-molecule.png", size=(2000, 2000))
+        Draw.MolToFile(max_mol, os.path.splitext(results_filename)[0] + "-molecule.png", fitImage=True, size=(2000, 2000))
