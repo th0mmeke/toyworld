@@ -117,40 +117,14 @@ def evaluate_experiments(experiments, evaluations, dirname, output):
         f.close()
 
 
-if __name__ == "__main__":
-
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument('-e', '--experiment', required=True, help="Filename of Experiment design (xml)")
-    parent_parser.add_argument('-m', '--evaluator', default=None,
-                               help="Module.Class for evaluator (e.g., evaluators.evaluator_summary.SummaryEvaluator): use instead of evaluators in experiment design")
-    parent_parser.add_argument('-l', '--log_level', default='INFO', help="Set the logging level")
-    parent_parser.add_argument('-f', '--log_filename',
-                               help="Filename for logging (relative to location of evaluation design file) (optional)")
-
-    evaluate = os.path.basename(sys.argv[0]) == "evaluate.py"
-
-    if evaluate:
-        parser = argparse.ArgumentParser(parents=[parent_parser])
-        parser.add_argument('-a', '--partition', action='store_true', help='Partition input data')
-        parser.add_argument('-p', '--preview', action='store_true', help='Do not write evaluator output to file')
-    else:
-        parser = argparse.ArgumentParser(parents=[parent_parser])
-
-    args = parser.parse_args()
-
-    dirname = os.path.join(config.DataDir, os.path.dirname(args.experiment))
-    basename = os.path.basename(args.experiment)
-    if os.path.splitext(args.experiment)[1] == '':
-        dirname = os.path.join(dirname, basename)
-        basename = 'experiment_design.xml'
-
+def initialise_logging(args, basedir):
     level = getattr(logging, args.log_level.upper())
     logger = logging.getLogger()
     logger.setLevel(level)
 
     if not args.log_filename:
-        args.log_filename = os.path.basename(dirname) + ".log"
-    fh = logging.FileHandler(os.path.join(dirname, args.log_filename))
+        args.log_filename = os.path.basename(basedir) + ".log"
+    fh = logging.FileHandler(os.path.join(basedir, args.log_filename))
     fh.setLevel(level)
 
     ch = logging.StreamHandler()
@@ -163,14 +137,44 @@ if __name__ == "__main__":
     logger.addHandler(ch)
     logger.addHandler(fh)
 
-    experiment_filename = os.path.join(dirname, basename)
+
+def get_args():
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument('-e', '--experiment', required=True, help="Filename of Experiment design (xml)")
+    parent_parser.add_argument('-m', '--evaluator', default=None,
+                               help="Module.Class for evaluator (e.g., evaluators.evaluator_summary.SummaryEvaluator): use instead of evaluators in experiment design")
+    parent_parser.add_argument('-l', '--log_level', default='INFO', help="Set the logging level")
+    parent_parser.add_argument('-f', '--log_filename',
+                               help="Filename for logging (relative to location of evaluation design file) (optional)")
+
+    if os.path.basename(sys.argv[0]) == "evaluate.py":
+        parser.add_argument('-a', '--partition', action='store_true', help='Partition input data')
+        parser.add_argument('-p', '--preview', action='store_true', help='Do not write evaluator output to file')
+
+    parser = argparse.ArgumentParser(parents=[parent_parser])
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+
+    args = get_args()
+    basedir = os.path.join(config.DataDir, os.path.dirname(args.experiment))
+    initialise_logging(args, basedir)
+
+    basename = os.path.basename(args.experiment)
+    if os.path.splitext(args.experiment)[1] == '':
+        basedir = os.path.join(basedir, basename)
+        basename = 'experiment_design.xml'
+
+    experiment_filename = os.path.join(basedir, basename)
     if not os.path.isfile(experiment_filename):
-        raise ValueError("Couldn't find an experiment file")
+        sys.exit("Couldn't find an experiment file at {0}".format(experiment_filename))
+
     logging.info("Reading experiment design from file {}".format(experiment_filename))
+    runner = runner.Runner(ElementTree.parse(experiment_filename), basedir)
 
-    runner = runner.Runner(ElementTree.parse(experiment_filename), dirname)
-
-    if not evaluate:
+    if os.path.basename(sys.argv[0]) != "evaluate.py":
         runner.run()
     else:
         experiments = runner.get_experiments()
@@ -184,6 +188,6 @@ if __name__ == "__main__":
             evaluations = [
                 getattr(importlib.import_module(evaluator_module), evaluator_class)(partition=args.partition)]
 
-        evaluate_experiments(experiments, evaluations, dirname, not args.preview)
+        evaluate_experiments(experiments, evaluations, basedir, not args.preview)
 
         logging.info("Finished evaluation")
