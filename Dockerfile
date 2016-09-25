@@ -1,5 +1,5 @@
 FROM ubuntu
-MAINTAINER thomas.young@pg.canterbury.ac.nz
+MAINTAINER thomas.young@canterbury.ac.nz
 
 RUN apt-get update
 RUN apt-get -y install python2.7
