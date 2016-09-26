@@ -79,10 +79,18 @@ Experiments are defined in an XML experiment definition. An example can be found
 
 The list of parameters that Toyworld understands can be found in parameters.py.
 
+## Tests
+
+The complete suite of unit tests is run by `python -m unittest discover` from the main project directory, $TOYWORLD.
+All the tests in one python file can be run by `python -m unittest tests.<filename>` e.g., `python -m unittest tests.test_default_chemistry`
+
 ## TODO
 
-1. Convert the experiment_design file format from XML to JSON
+1. Match directory names in source structure to xml parameter names (e.g., vessel instead of reactor_model)
+1. Class diagram and documentation for experiment_design.xml structure
+1. Make energy features optional
 1. Rewrite tests to use mocks
+1. Move tests to associated directory for modules
 1. `Visualize` option should initialize a visualizer, rather than having `if visualize` tests scattered throughout the code
 1. Make the common section of the experiment_definition optional
 
