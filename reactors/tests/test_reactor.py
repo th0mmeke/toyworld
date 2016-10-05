@@ -3,29 +3,29 @@ Created on 27/04/2013
 
 @author: thom
 """
-import unittest
 import math
+import unittest
 
+from atoms.molecule import Molecule
 from rdkit.rdBase import DisableLog, EnableLog
 
-from kinetic_molecule import KineticMolecule
-from molecule import Molecule
-from chemistry_model.default_chemistry import DefaultChemistry
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
-from reactor_model.aspatial_reaction_vessel import AspatialReactionVessel
-from molecular_population import MolecularPopulation
-from chemistry_model.reaction import Reaction
+from atoms.kinetic_molecule import KineticMolecule
+from atoms.molecular_population import MolecularPopulation
+from reactions.reaction import Reaction
+from reactions.semi_realistic_chemistry import SemiRealisticChemistry
+from reactors.aspatial_reactor import AspatialReactor
+from reactors.spatial_reactor import SpatialReactor
 
 
-class TestReactionVessel(unittest.TestCase):
+class TestReactor(unittest.TestCase):
 
     def setUp(self):
         DisableLog('rdApp.error')
-        self._chemistry = DefaultChemistry()
+        self._chemistry = SemiRealisticChemistry()
         self._population = MolecularPopulation()
         self._population.set_quantity("O", 2)
         self._population.set_quantity("N", 1)
-        self._vessel = [SpatialReactionVessel(self._chemistry, self._population), AspatialReactionVessel(self._chemistry, self._population)]
+        self._vessel = [SpatialReactor(self._chemistry, self._population), AspatialReactor(self._chemistry, self._population)]
 
     def tearDown(self):
         EnableLog('rdApp.error')

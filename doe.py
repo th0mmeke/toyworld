@@ -34,7 +34,7 @@ class FactorialDesign:
         experiment_design += "<Common>"
         experiment_design += "<Iterations>{}</Iterations>".format(iterations)
         experiment_design += "<PopulationFilename>{}</PopulationFilename>".format(population)
-        experiment_design += "<Reactions>chemistry_model.emergent_reactions.EmergentReactions</Reactions>"
+        experiment_design += "<Reactions>reactions.emergent_reactions.EmergentReactions</Reactions>"
         experiment_design += "</Common>"
 
         experiment_design += "<Factors>"
@@ -94,8 +94,8 @@ if __name__ == '__main__':
 
     if not args.bonds:
         factors = []
-        factors.append({'key': 'dimensionality', 'Title': 'Dimensionality', 'Low': "<Molecule>molecule.Molecule</Molecule><Vessel>reactor_model.aspatial_reaction_vessel.AspatialReactionVessel</Vessel>",
-                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactor_model.spatial_reaction_vessel.SpatialReactionVessel</Vessel>"})
+        factors.append({'key': 'dimensionality', 'Title': 'Dimensionality', 'Low': "<Molecule>molecule.Molecule</Molecule><Vessel>reactors.aspatial_reaction_vessel.AspatialReactionVessel</Vessel>",
+                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactors.spatial_reaction_vessel.SpatialReactionVessel</Vessel>"})
         factors.append({'key': 'energy', 'Title': 'Energy', 'Low': "<Energy>100</Energy>", 'High': "<Energy>300</Energy>"})
         factors.append({'key': 'bonds', 'Title': 'Bond Energies', 'Low': "", 'High': "<BondFormationEnergies><Single>50</Single><Double>100</Double><Triple>200</Triple></BondFormationEnergies>"})
     else:

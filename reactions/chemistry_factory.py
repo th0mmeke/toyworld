@@ -4,7 +4,7 @@ Created on 14 Aug 2013
 @author: thom
 """
 
-from chemistry_model.default_chemistry import DefaultChemistry
+from semi_realistic_chemistry import SemiRealisticChemistry
 
 
 class ChemistryFactory(object):
@@ -13,4 +13,4 @@ class ChemistryFactory(object):
 
     @classmethod
     def new(cls, parameters=None):
-        return DefaultChemistry(parameters)
+        return SemiRealisticChemistry(parameters)

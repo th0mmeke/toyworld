@@ -3,14 +3,14 @@ Created on 27/04/2013
 
 @author: thom
 """
-import unittest
 import random
+import unittest
 
 import numpy as np
 
-from chemistry_model.chemistry_factory import ChemistryFactory
-from kinetic_molecule import KineticMolecule
-from chemistry_model.emergent_reactions import EmergentReactions
+from atoms.kinetic_molecule import KineticMolecule
+from reactions.chemistry_factory import ChemistryFactory
+from reactions.emergent_reactions import EmergentReactions
 from kinetics_2D import Kinetics2D
 
 
@@ -24,11 +24,11 @@ class TestKinetics2D(unittest.TestCase):
         for i in range(0, 10):
             x = random.uniform(-10, 10)
             y = random.uniform(-10, 10)
-            x_prime, y_prime = self._kinetics.radial_to_xyz(*self._kinetics.xyz_to_radial(x, y))
+            x_prime, y_prime = self._kinetics.radial_to_xy(*self._kinetics.xy_to_radial(x, y))
             self.assertAlmostEqual(x, x_prime)
             self.assertAlmostEqual(y, y_prime)
         x, y = 10, 0
-        theta, r = self._kinetics.xyz_to_radial(x, y)
+        theta, r = self._kinetics.xy_to_radial(x, y)
         self.assertAlmostEqual(0, theta)
         self.assertAlmostEqual(10, r)
 
@@ -47,7 +47,7 @@ class TestKinetics2D(unittest.TestCase):
         v = random.uniform(-10, 10)
         mol0.set_velocity(v, 0)
         mol1.set_velocity(-v, 0)  # equal and opposite
-        theta, velocity = self._kinetics.xyz_to_radial(*self._kinetics.get_CM_velocity([mol0, mol1]))
+        theta, velocity = self._kinetics.xy_to_radial(*self._kinetics.get_CM_velocity([mol0, mol1]))
         self.assertAlmostEqual(0, velocity)  # velocity = 0 given rounding
 
     def test_inelastic_collision_angles(self):
@@ -67,7 +67,7 @@ class TestKinetics2D(unittest.TestCase):
             self.assertAlmostEqual(in_, out_)
 
         # test that the out molecules do not all have the same velocity... possible to have correct CM and energy if all along CoM, but boring!
-        out_v_radial = [self._kinetics.xyz_to_radial(*mol.get_velocity()) for mol in product_mols]
+        out_v_radial = [self._kinetics.xy_to_radial(*mol.get_velocity()) for mol in product_mols]
         components = np.array(out_v_radial).transpose()
         self.assertNotEqual(0, np.count_nonzero([np.std(components[i]) for i in range(2)]))
 

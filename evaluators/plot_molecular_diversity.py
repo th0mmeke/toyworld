@@ -4,11 +4,11 @@ Created on 6/05/2013
 @author: thom
 """
 
-from plot import Plot
-from evaluator import Evaluator
-from molecular_population import MolecularPopulation
-
 import matplotlib.colors as colors
+
+from atoms.molecular_population import MolecularPopulation
+from evaluator import Evaluator
+from plot import Plot
 
 
 class PlotMolecularDiversity(Plot):

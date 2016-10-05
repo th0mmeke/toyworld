@@ -4,16 +4,16 @@ Created on 13 Aug 2013
 @author: thom
 """
 
-import logging
-import random
 import collections
+import logging
 import os
+import random
 import xml.etree.cElementTree as ElementTree
 
-from molecular_population import MolecularPopulation
-from parameters import Parameters
+from atoms.molecular_population import MolecularPopulation
 from evaluators.evaluator import Evaluator
-from reactor_model.reaction_vessel_factory import ReactionVesselFactory
+from parameters import Parameters
+from reactors.reaction_vessel_factory import ReactionVesselFactory
 
 
 class Experiment(object):

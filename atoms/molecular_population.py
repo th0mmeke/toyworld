@@ -4,15 +4,15 @@ Created on 30/01/2013
 @author: thom
 """
 
-import random
 import logging
+import random
+import xml.etree.cElementTree as ElementTree
 
 import numpy as np
 from rdkit.Chem import AllChem as Chem
-import xml.etree.cElementTree as ElementTree
 
+from atoms.molecule import Molecule  # only used to get canonical SMILES representation for a molecule
 from population import Population
-from molecule import Molecule  # only used to get canonical SMILES representation for a molecule
 
 
 class MolecularPopulation(Population):

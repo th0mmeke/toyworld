@@ -16,7 +16,7 @@ from rdkit.Chem import AllChem as Chem
 from parameters import Parameters
 
 
-class ReactionVessel(object):
+class Reactor(object):
     """
     Abstract class for Reaction Vessels.
     Methods for quantities and concentrations of molecules, and for tracking energy inputs and outputs.
@@ -80,10 +80,6 @@ class ReactionVessel(object):
 
     @abstractmethod
     def add_molecules(self, molecules):
-        pass
-
-    @abstractmethod
-    def remove_molecules(self, molecules):
         pass
 
     def write_initial(self, population, parameters, f_data, f_states):

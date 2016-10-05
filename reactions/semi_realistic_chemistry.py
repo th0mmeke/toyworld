@@ -7,9 +7,9 @@ Created on 14 Aug 2013
 from rdkit.Chem import AllChem as Chem
 
 
-class DefaultChemistry(object):
+class SemiRealisticChemistry(object):
 
-    """A simple Chemistry based on real-world chemistry."""
+    """A simple Chemistry based on real-world reactions."""
 
     def __init__(self, parameters=None):
         """:param parameters: Parameters object"""
@@ -60,7 +60,7 @@ class DefaultChemistry(object):
         break_energies = None
 
         if parameters is not None:  # Parameters object
-            atoms = parameters.get('Atoms')
+            atoms = parameters.get('atoms')
             if atoms is not None:
                 self._atoms = []
                 for atom in atoms.findall('Atom'):

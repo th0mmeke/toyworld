@@ -4,12 +4,13 @@ Created on 6/05/2013
 @author: thom
 """
 
-from evaluator import Evaluator
-from reaction_network import ReactionNetwork
-from kinetic_molecule import KineticMolecule
+import logging
+
 import networkx as nx
 
-import logging
+from atoms.kinetic_molecule import KineticMolecule
+from evaluator import Evaluator
+from reaction_network import ReactionNetwork
 
 
 class EvaluatorCycleSummary(Evaluator):

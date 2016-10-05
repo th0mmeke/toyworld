@@ -73,7 +73,7 @@ class KineticMolecule(Molecule):
         try:
             self.body.velocity = self.body.velocity * new_speed / self.get_speed()
         except:
-            self.body.velocity = Kinetics2D.radial_to_xyz(r=new_speed)  # random direction
+            self.body.velocity = Kinetics2D.radial_to_xy(r=new_speed)  # random direction
 
     def get_kinetic_energy(self):
         # Three different ways that the kinetic energy of this molecule can be changed:
@@ -95,9 +95,9 @@ class KineticMolecule(Molecule):
         """:return: vec2d"""
         return self.body.velocity
 
-    def set_velocity(self, *args):
+    def set_velocity(self, vel):
         """:param args: vec2d"""
-        self.body.velocity = args
+        self.body.velocity = (vel.x,vel.y)
 
     def split_molecule(self):
         """Allocate the initial energy proportional to the square of the mass of each resulting molecule.

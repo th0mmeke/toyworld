@@ -6,15 +6,14 @@ Created on 13 Aug 2013
 
 import logging
 import os
-import config
 
+from chemistry_factory import ChemistryFactory
+from emergent_reactions import EmergentReactions
+from physics_factory import PhysicsFactory
 from rdkit.Chem import AllChem as Chem
 
-from emergent_reactions import EmergentReactions
-from molecule import Molecule
-from chemistry_factory import ChemistryFactory
-from physics_factory import PhysicsFactory
-
+import config
+from atoms.molecule import Molecule
 
 if __name__ == '__main__':
 

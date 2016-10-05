@@ -4,9 +4,8 @@ Created on 6/05/2013
 @author: thom
 """
 
-
+from atoms.molecular_population import MolecularPopulation
 from evaluator import Evaluator
-from molecular_population import MolecularPopulation
 
 
 class EvaluatorPopulationSummary(Evaluator):

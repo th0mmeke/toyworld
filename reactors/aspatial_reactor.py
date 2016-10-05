@@ -4,21 +4,20 @@ Created on 22/03/2013
 @author: thom
 """
 
-from reaction_vessel import ReactionVessel
-
-import random
-import logging
 import copy
-import os
+import logging
+import random
 
 from rdkit.Chem import AllChem as Chem
-from molecule import Molecule
+
+from atoms.molecule import Molecule
 from ULPS import Float_t
-from chemistry_model.reaction import Reaction
+from reactions.reaction import Reaction
 from parameters import Parameters
+from reactor import Reactor
 
 
-class AspatialReactionVessel(ReactionVessel):
+class AspatialReactor(Reactor):
 
     """
     Zero-dimensional reaction vessel modelling a well-mixed container.
@@ -27,7 +26,7 @@ class AspatialReactionVessel(ReactionVessel):
     def __init__(self, chemistry, population, parameters=Parameters(), product_selection_strategy="energy"):
 
         self.initial_average_ke = int(parameters.get('Energy'))
-        super(AspatialReactionVessel, self).__init__(chemistry, population, parameters=parameters, product_selection_strategy=product_selection_strategy)
+        super(AspatialReactor, self).__init__(chemistry, population, parameters=parameters, product_selection_strategy=product_selection_strategy)
 
         logging.info("Aspatial Reaction Vessel with initial KE = {}".format(self.initial_average_ke))
 
@@ -37,11 +36,10 @@ class AspatialReactionVessel(ReactionVessel):
             self._energy_input = 0
 
     def add_molecules(self, molecules):
-        super(AspatialReactionVessel, self).add_molecules(molecules)
+        super(AspatialReactor, self).add_molecules(molecules)
         self._molecules.extend(molecules)
 
     def remove_molecules(self, molecules):
-        super(AspatialReactionVessel, self).remove_molecules(molecules)
         for mol in molecules:
             self._molecules.remove(mol)
 

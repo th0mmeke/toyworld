@@ -5,13 +5,13 @@ Created on 27/04/2013
 """
 import unittest
 
+from atoms.molecule import Molecule
 from rdkit.Chem import AllChem as Chem
 from rdkit.rdBase import DisableLog, EnableLog
 
-from molecule import Molecule
-from kinetic_molecule import KineticMolecule
-from chemistry_model.chemistry_factory import ChemistryFactory
-from chemistry_model.emergent_reactions import EmergentReactions
+from atoms.kinetic_molecule import KineticMolecule
+from reactions.chemistry_factory import ChemistryFactory
+from reactions.emergent_reactions import EmergentReactions
 
 
 class TestEmergentReactions(unittest.TestCase):

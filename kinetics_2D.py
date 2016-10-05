@@ -25,7 +25,7 @@ class Kinetics2D(object):
         return math.sqrt(x * x + y * y)
 
     @classmethod
-    def radial_to_xyz(cls, theta=None, r=None):
+    def radial_to_xy(cls, theta=None, r=None):
         """Always returns a 2-D x,y"""
         if theta is None:
             theta = random.uniform(0, 2.0 * math.pi)
@@ -36,7 +36,7 @@ class Kinetics2D(object):
         return x, y
 
     @classmethod
-    def xyz_to_radial(cls, x, y):
+    def xy_to_radial(cls, x, y):
         """Always returns a 2-D theta,r"""
         r = math.hypot(x, y)
         theta = math.atan2(y, x)
@@ -115,7 +115,7 @@ class Kinetics2D(object):
 
         out_mass = [mol.get_mass() for mol in product_mols]
         cm_in_v = cls.get_CM_velocity(reactant_mols)
-        cm_in_radial_v = cls.xyz_to_radial(*cm_in_v)
+        cm_in_radial_v = cls.xy_to_radial(*cm_in_v)
 
         # Bound energy_of_collision to above zero (rounding errors for small values)
         # consistent sense with that in discover_reaction - final_PE = initial_PE + energy_delta => final_KE = initial_KE - energy_delta
@@ -134,8 +134,8 @@ class Kinetics2D(object):
             ke_in_CM_frame = random.uniform(0, energy_of_collision)
             IE = energy_of_collision - ke_in_CM_frame
             mv = math.sqrt((2.0 * ke_in_CM_frame * out_mass[0] * out_mass[1]) / (out_mass[0] + out_mass[1]))
-            out_v_in_CoM_frame.append(cls.radial_to_xyz(cm_in_radial_v[0] + math.pi * 0.5, mv))
-            out_v_in_CoM_frame.append(cls.radial_to_xyz(cm_in_radial_v[0] + math.pi * 1.5, mv))
+            out_v_in_CoM_frame.append(cls.radial_to_xy(cm_in_radial_v[0] + math.pi * 0.5, mv))
+            out_v_in_CoM_frame.append(cls.radial_to_xy(cm_in_radial_v[0] + math.pi * 1.5, mv))
 
         elif len(out_mass) == 3:
             # Sum of vector momentums = 0, and in centre of momentum frame arranged as equilateral triangle, side mv
@@ -143,9 +143,9 @@ class Kinetics2D(object):
             ke_in_CM_frame = random.uniform(0, energy_of_collision)  # The energy of the collision - over and above the energy of the centre of mass, which is invariant
             IE = energy_of_collision - ke_in_CM_frame
             mv = math.sqrt((2.0 * ke_in_CM_frame * out_mass[0] * out_mass[1] * out_mass[2]) / (out_mass[0] * out_mass[1] + out_mass[1] * out_mass[2] + out_mass[0] * out_mass[2]))
-            out_v_in_CoM_frame.append(cls.radial_to_xyz(cm_in_radial_v[0] + math.pi / 3.0, mv))
-            out_v_in_CoM_frame.append(cls.radial_to_xyz(cm_in_radial_v[0] - math.pi / 3.0, mv))
-            out_v_in_CoM_frame.append(cls.radial_to_xyz(cm_in_radial_v[0] + math.pi, mv))
+            out_v_in_CoM_frame.append(cls.radial_to_xy(cm_in_radial_v[0] + math.pi / 3.0, mv))
+            out_v_in_CoM_frame.append(cls.radial_to_xy(cm_in_radial_v[0] - math.pi / 3.0, mv))
+            out_v_in_CoM_frame.append(cls.radial_to_xy(cm_in_radial_v[0] + math.pi, mv))
 
         # Now convert from momentums to velocities by scaling by 1/mass
         out_v_in_CoM_frame = [[mv_component / mass for mv_component in particle_mv] for particle_mv, mass in zip(out_v_in_CoM_frame, out_mass)]

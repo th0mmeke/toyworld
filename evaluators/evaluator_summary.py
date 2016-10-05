@@ -4,15 +4,12 @@ Created on 6/05/2013
 @author: thom
 """
 
-
 import logging
 import string
 
-from rdkit.Chem import AllChem as Chem
-
+from atoms.molecular_population import MolecularPopulation
+from atoms.molecule import Molecule
 from evaluator import Evaluator
-from molecular_population import MolecularPopulation
-from molecule import Molecule
 
 
 class EvaluatorSummary(Evaluator):

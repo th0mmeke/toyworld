@@ -4,15 +4,16 @@ Created on 27/04/2013
 @author: thom
 """
 import unittest
-
-from molecule import Molecule
-from chemistry_model.chemistry_factory import ChemistryFactory
-from parameters import Parameters
-from rdkit.Chem import AllChem as Chem
 import xml.etree.cElementTree as ElementTree
 
+from rdkit.Chem import AllChem as Chem
 
-class Test(unittest.TestCase):
+from atoms.molecule import Molecule
+from reactions.chemistry_factory import ChemistryFactory
+from parameters import Parameters
+
+
+class TestSemiRealisticChemistry(unittest.TestCase):
 
     def testBondEnergy(self):
         # energy is energy REQUIRED => - means releases energy
@@ -39,7 +40,7 @@ class Test(unittest.TestCase):
         self.assertEqual(33, chem2.get_bond_energy(Chem.Atom('N'), Chem.Atom('N'), start_bond_type=4))  # destroy double bond
 
     def testBondEnergyManyAtoms(self):
-        chem = ChemistryFactory.new(parameters=Parameters(ElementTree.fromstring('<xml><Atoms><Atom>N</Atom><Atom>S</Atom><Atom>Q</Atom></Atoms></xml>')))
+        chem = ChemistryFactory.new(parameters=Parameters(ElementTree.fromstring('<xml><atoms><Atom>N</Atom><Atom>S</Atom><Atom>Q</Atom></atoms></xml>')))
         actual = chem.get_bond_energy(Chem.Atom('S'), Chem.Atom('S'), start_bond_type=2)
         self.assertEqual(actual, chem.get_bond_energy(Chem.Atom('S'), Chem.Atom('S'), start_bond_type=2))  # same as for known bond energy
         with self.assertRaises(Exception):

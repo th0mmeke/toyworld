@@ -3,15 +3,15 @@ Created on 27/04/2013
 
 @author: thom
 """
-import unittest
-import string
 import copy
+import string
+import unittest
 
 from rdkit.Chem import AllChem as Chem
 from rdkit.rdBase import DisableLog, EnableLog
 
-from molecule import Molecule
-from chemistry_model.chemistry_factory import ChemistryFactory
+from atoms.molecule import Molecule
+from reactions.chemistry_factory import ChemistryFactory
 
 
 class Test(unittest.TestCase):
@@ -81,7 +81,7 @@ class Test(unittest.TestCase):
     def testGetStronglyConnectedComponents(self):
         mol = Molecule("O=C=O.O")
         self.assertEqual(6, mol.GetNumAtoms())
-        self.assertEqual([[0, 1, 2], [3, 4, 5]], mol._get_strongly_connected_components())
+        self.assertEqual([set([0, 1, 2]), set([3, 4, 5])], mol._get_strongly_connected_components())
         mol = Molecule("[H]")
         self.assertEqual([[0]], mol._get_strongly_connected_components())
 
@@ -100,12 +100,12 @@ class Test(unittest.TestCase):
         self.assertEqual('[H+].[H][O-]', Chem.MolToSmiles(mol))
 
     def testSplitAndCombineMolecule(self):
-        split_smiles = ('[H]O[H]', '[H]O[H]', 'O=C=O')
+        split_smiles = ['[H]O[H]', '[H]O[H]', 'O=C=O']
         mols = [Molecule(smiles, kinetic_energy=10) for smiles in split_smiles]
         combined_mols = mols[0].combine_molecules(mols)
         target = Molecule(string.join(split_smiles, "."), 10)
         self.assertEqual(Chem.MolToSmiles(target), Chem.MolToSmiles(combined_mols))
-        self.assertEqual(split_smiles, tuple(Chem.MolToSmiles(mol) for mol in combined_mols.split_molecule()))
+        self.assertEqual(set(split_smiles), set(Chem.MolToSmiles(mol) for mol in combined_mols.split_molecule()))
 
         split_smiles = ('[H+]', '[OH-]')
         mols = [Molecule(smiles, kinetic_energy=10) for smiles in split_smiles]

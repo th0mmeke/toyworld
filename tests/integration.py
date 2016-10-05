@@ -35,8 +35,8 @@ class TestIntegration(unittest.TestCase):
         factors = []
         factors.append({'key': 'dimensionality',
                         'Title': 'Dimensionality',
-                        'Low': "<Molecule>molecule.Molecule</Molecule><Vessel>reactor_model.aspatial_reaction_vessel.AspatialReactionVessel</Vessel><ReactionVesselDimension>0</ReactionVesselDimension>",
-                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactor_model.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>3</ReactionVesselDimension>"})
+                        'Low': "<Molecule>molecule.Molecule</Molecule><Vessel>reactors.aspatial_reaction_vessel.AspatialReactionVessel</Vessel><ReactionVesselDimension>0</ReactionVesselDimension>",
+                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactors.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>3</ReactionVesselDimension>"})
         factors.append({'key': 'energy', 'Title': 'Energy', 'Low': "<Energy>100</Energy>", 'High': "<Energy>300</Energy>"})
         factors.append({'key': 'foodset', 'Title': 'FoodSet', 'Low': "<FoodSet>False</FoodSet>", 'High': "<FoodSet>True</FoodSet>"})
         factors.append({'key': 'bonds', 'Title': 'Bond Energies', 'Low': "", 'High': "<BondFormationEnergies><Single>50</Single><Double>100</Double><Triple>200</Triple></BondFormationEnergies>"})
@@ -63,8 +63,8 @@ class TestIntegration(unittest.TestCase):
         factors = []
         factors.append({'key': 'dimensionality',
                         'Title': 'Dimensionality',
-                        'Low': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactor_model.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>2</ReactionVesselDimension>",
-                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactor_model.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>3</ReactionVesselDimension>"})
+                        'Low': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactors.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>2</ReactionVesselDimension>",
+                        'High': "<Molecule>kinetic_molecule.KineticMolecule</Molecule><Vessel>reactors.spatial_reaction_vessel.SpatialReactionVessel</Vessel><ReactionVesselDimension>3</ReactionVesselDimension>"})
         factors.append({'key': 'energy', 'Title': 'Energy', 'Low': "<Energy>100</Energy>", 'High': "<Energy>300</Energy>"})
         factors.append({'key': 'foodset', 'Title': 'FoodSet', 'Low': "<FoodSet>False</FoodSet>", 'High': "<FoodSet>True</FoodSet>"})
         factors.append({'key': 'bonds', 'Title': 'Bond Energies', 'Low': "", 'High': "<BondFormationEnergies><Single>50</Single><Double>100</Double><Triple>200</Triple></BondFormationEnergies>"})

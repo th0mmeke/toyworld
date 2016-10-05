@@ -31,15 +31,15 @@ class Parameters(object):
         else:
             self._defaults = {
                 'Energy': 300,
-                'EnergyModel': 'energy_model.default_energy_model.DefaultEnergyModel',
+                'EnergyModel': 'energy.default_energy_model.DefaultEnergyModel',
                 'Iterations': 10000,
                 'Time': 1000,
                 'RadiationRate': 0.0,
                 'EnergyInput': 0.0,
-                'Reactions': 'chemistry_model.emergent_reactions.EmergentReactions',
+                'Reactions': 'reactions.emergent_reactions.EmergentReactions',
                 'ProductSelectionStrategy': 'energy',
-                'Molecule': 'kinetic_molecule.KineticMolecule',
-                'Vessel': 'reactor_model.spatial_reaction_vessel.SpatialReactionVessel',
+                'Molecule': 'atoms.kinetic_molecule.KineticMolecule',
+                'Vessel': 'reactors.spatial_reaction_vessel.SpatialReactionVessel',
                 'DipoleForceConstant': 0.01,
 
                 'repeats': 1,

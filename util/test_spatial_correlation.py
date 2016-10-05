@@ -12,7 +12,7 @@ import pysal
 import matplotlib.pyplot as plt
 from scipy.cluster import vq
 
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from reactors.spatial_reactor import SpatialReactor
 
 
 class TestSpatialCorrelation(object):
@@ -57,7 +57,7 @@ class TestSpatialCorrelation(object):
         cell_size = 2.0 / number_of_cells
         grid = np.zeros((number_of_cells * number_of_cells))
         for location in locations:
-            cell = SpatialReactionVessel._get_grid_cell(location, cell_size)
+            cell = SpatialReactor._get_grid_cell(location, cell_size)
             i = cell[1] * number_of_cells + cell[0]
             try:
                 grid[i] = 1

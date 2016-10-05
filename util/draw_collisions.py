@@ -8,10 +8,10 @@ import math
 
 from rdkit.Chem import AllChem as Chem
 
-from chemistry_model.chemistry_factory import ChemistryFactory
-from kinetic_molecule import KineticMolecule
-from chemistry_model.emergent_reactions import EmergentReactions
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from atoms.kinetic_molecule import KineticMolecule
+from reactions.chemistry_factory import ChemistryFactory
+from reactions.emergent_reactions import EmergentReactions
+from reactors.spatial_reactor import SpatialReactor
 
 
 def draw(reactant_mols, product_mols, label=""):
@@ -73,7 +73,7 @@ def draw(reactant_mols, product_mols, label=""):
 
 if __name__ == "__main__":
 
-    vessel = SpatialReactionVessel(-7, dimension=3)
+    vessel = SpatialReactor(-7, dimension=3)
     vessel.initialize(chemistry=ChemistryFactory.new())
 
     with open("Collisions.tex", "w") as f:

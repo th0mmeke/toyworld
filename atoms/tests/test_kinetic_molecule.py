@@ -3,15 +3,15 @@ Created on 27/04/2013
 
 @author: thom
 """
-import unittest
-import string
 import copy
 import math
+import string
+import unittest
 
 from rdkit.Chem import AllChem as Chem
 from rdkit.rdBase import DisableLog, EnableLog
 
-from kinetic_molecule import KineticMolecule
+from atoms.kinetic_molecule import KineticMolecule
 from ULPS import Float_t
 
 

@@ -5,7 +5,7 @@ Created on 23 Aug 2013
 """
 import importlib
 
-from chemistry_model.chemistry_factory import ChemistryFactory
+from reactions.chemistry_factory import ChemistryFactory
 
 
 class ReactionVesselFactory(object):

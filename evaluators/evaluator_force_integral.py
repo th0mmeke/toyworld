@@ -11,7 +11,7 @@ import os
 
 from evaluator import Evaluator
 from charged_molecule import ChargedMolecule
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from reactors.spatial_reactor import SpatialReactor
 
 from abc import ABCMeta
 
@@ -41,8 +41,8 @@ class EvaluatorForceIntegral(Evaluator):
                 y = position.y + shape.offset.y * 2.0
 
                 # map [-reaction_vessel_size/2,reaction_vessel_size/2] to [0,self._screen.get_height()]"""
-                screen_x = int((x + SpatialReactionVessel.reaction_vessel_size) * EvaluatorVisualiser.ratio_vessel_screen)
-                screen_y = int((y + SpatialReactionVessel.reaction_vessel_size) * EvaluatorVisualiser.ratio_vessel_screen)
+                screen_x = int((x + SpatialReactor.reaction_vessel_size) * EvaluatorVisualiser.ratio_vessel_screen)
+                screen_y = int((y + SpatialReactor.reaction_vessel_size) * EvaluatorVisualiser.ratio_vessel_screen)
 
                 pygame.draw.circle(self._screen, pygame.color.THECOLORS["black"], (screen_x, screen_y), int(shape.radius), 0)
 

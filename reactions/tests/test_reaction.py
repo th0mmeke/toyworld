@@ -7,7 +7,7 @@ import unittest
 
 from rdkit.Chem import AllChem as Chem
 
-from chemistry_model.reaction import Reaction
+from reactions.reaction import Reaction
 
 
 class Test(unittest.TestCase):

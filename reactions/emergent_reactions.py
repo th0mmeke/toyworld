@@ -4,16 +4,15 @@ Created on 8/01/2013
 @author: thom
 """
 
-
-import logging
 import copy
+import logging
 
 from rdkit.Chem import AllChem as Chem
 
-from chemistry_model.reactions import Reactions
-from chemistry_model.reaction import Reaction
+from atoms.molecule import Molecule  # only used in assertion to check conservation of potential energy
 from ULPS import Float_t
-from molecule import Molecule  # only used in assertion to check conservation of potential energy
+from reaction import Reaction
+from reactions import Reactions
 
 
 class EmergentReactions(Reactions):
@@ -85,7 +84,7 @@ class EmergentReactions(Reactions):
             # logging.debug("Attempting to change bond between {} and {} to {}".format(begin_atom_idx, end_atom_idx, new_bond_order))
 
             if new_bond_order > 3:
-                raise ValueError  # to meet RDKit restriction from organic chemistry that maximum likely bond is triple-bond
+                raise ValueError  # to meet RDKit restriction from organic reactions that maximum likely bond is triple-bond
 
             bond = mol.GetBondBetweenAtoms(begin_atom_idx, end_atom_idx)
             e_mol = Chem.EditableMol(mol)
@@ -227,7 +226,7 @@ class EmergentReactions(Reactions):
             # logging.debug("Attempting to change bond between {} and {} to {}".format(begin_atom_idx, end_atom_idx, new_bond_order))
 
             if new_bond_order > 3:
-                raise ValueError  # to meet RDKit restriction from organic chemistry that maximum likely bond is triple-bond
+                raise ValueError  # to meet RDKit restriction from organic reactions that maximum likely bond is triple-bond
 
             bond = mol.GetBondBetweenAtoms(begin_atom_idx, end_atom_idx)
             e_mol = Chem.EditableMol(mol)

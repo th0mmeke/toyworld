@@ -10,7 +10,7 @@ import numpy as np
 import pysal
 
 from evaluator import Evaluator
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from reactors.spatial_reactor import SpatialReactor
 from abc import ABCMeta
 
 
@@ -31,7 +31,7 @@ class EvaluatorSpatialCorrelation(Evaluator):
         """
 
         states_filename = kwargs['states_filename']
-        number_of_cells = 2 * SpatialReactionVessel.reaction_vessel_size
+        number_of_cells = 2 * SpatialReactor.reaction_vessel_size
         final_t = Evaluator.get_final_summary(results_filename)['t']
         delta_t = final_t / 5.0
         logging.info("Final t = {}, delta_t = {}".format(final_t, delta_t))
@@ -70,7 +70,7 @@ class EvaluatorSpatialCorrelation(Evaluator):
     def _get_spatial_matrix(self, locations, number_of_cells):
         grid = np.zeros((number_of_cells * number_of_cells))
         for location in locations.values():
-            if abs(location[0]) > SpatialReactionVessel.reaction_vessel_size or abs(location[1]) > SpatialReactionVessel.reaction_vessel_size:
+            if abs(location[0]) > SpatialReactor.reaction_vessel_size or abs(location[1]) > SpatialReactor.reaction_vessel_size:
                 print(location)
             else:
                 cell = self._to_grid_coordinates(*location)
@@ -80,6 +80,6 @@ class EvaluatorSpatialCorrelation(Evaluator):
 
     def _to_grid_coordinates(self, x, y):
         """map [-reaction_vessel_size,reaction_vessel_size] to [0,2*reaction_vessel_size]"""
-        x = int(x + SpatialReactionVessel.reaction_vessel_size)
-        y = int(y + SpatialReactionVessel.reaction_vessel_size)
+        x = int(x + SpatialReactor.reaction_vessel_size)
+        y = int(y + SpatialReactor.reaction_vessel_size)
         return x, y

@@ -4,9 +4,11 @@ Created on 10/01/2013
 @author: thom
 """
 import unittest
-from molecular_population import MolecularPopulation
-from molecule import Molecule
+
 from rdkit.Chem import AllChem as Chem
+
+from atoms.molecular_population import MolecularPopulation
+from atoms.molecule import Molecule
 
 
 class MolecularPopulationTest(unittest.TestCase):

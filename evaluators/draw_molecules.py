@@ -4,14 +4,15 @@ Created on 6/05/2013
 @author: thom
 """
 
-from evaluator import Evaluator
-from molecule import Molecule
-from molecular_population import MolecularPopulation
 import logging
 import os
 
-from rdkit.Chem import Draw
 from rdkit.Chem import AllChem as Chem
+from rdkit.Chem import Draw
+
+from atoms.molecular_population import MolecularPopulation
+from atoms.molecule import Molecule
+from evaluator import Evaluator
 
 
 class DrawMolecules(Evaluator):

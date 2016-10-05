@@ -4,13 +4,13 @@ Created on 6/05/2013
 @author: thom
 """
 
-from plot import Plot
-from evaluator import Evaluator
-from molecular_population import MolecularPopulation
+import logging
 
 import matplotlib.colors as colors
 
-import logging
+from atoms.molecular_population import MolecularPopulation
+from evaluator import Evaluator
+from plot import Plot
 
 
 class PlotMoleculeTypes(Plot):

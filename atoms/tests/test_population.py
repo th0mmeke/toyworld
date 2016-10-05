@@ -4,7 +4,8 @@ Created on 10/01/2013
 @author: thom
 """
 import unittest
-from population import Population
+
+from atoms.population import Population
 
 
 class PopulationTest(unittest.TestCase):

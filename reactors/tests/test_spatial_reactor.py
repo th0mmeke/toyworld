@@ -3,21 +3,21 @@ Created on 27/04/2013
 
 @author: thom
 """
-import unittest
 import logging
 import random
+import unittest
 
-from chemistry_model.chemistry_factory import ChemistryFactory
-from kinetic_molecule import KineticMolecule
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from atoms.kinetic_molecule import KineticMolecule
 from ULPS import Float_t
+from reactions.chemistry_factory import ChemistryFactory
+from reactors.spatial_reactor import SpatialReactor
 
 
-class TestSpatialReactionVessel(unittest.TestCase):
+class TestSpatialReactor(unittest.TestCase):
 
     def setUp(self):
         logging.basicConfig(level=logging.INFO)
-        self._vessel = SpatialReactionVessel(chemistry=ChemistryFactory.new())
+        self._vessel = SpatialReactor(chemistry=ChemistryFactory.new())
 
     def _init_vessel(self, num_molecules=2):
         """Guaranteed not to bounce...each molecule (other than first one) travels shortest path between two points"""

@@ -12,7 +12,7 @@ import config
 from evaluators.evaluator import Evaluator
 from experiment import Experiment
 import xml.etree.cElementTree as ElementTree
-from reactor_model.spatial_reaction_vessel import SpatialReactionVessel
+from reactors.spatial_reactor import SpatialReactor
 
 
 class Locations(object):
@@ -34,7 +34,7 @@ class Locations(object):
         for global_id, location in frame.iteritems():
             index = id_to_index[global_id]  # 0...number of unique molecules-1
             smiles = id_to_smiles[global_id]
-            x, y = SpatialReactionVessel._get_grid_cell(location, cell_size)  # map to grid - each value 0,1...
+            x, y = SpatialReactor._get_grid_cell(location, cell_size)  # map to grid - each value 0,1...
             print("{},{},{},{}".format(index, smiles, x + 1, y + 1))
 
     def build_reaction_locations(self, results_filename, number_of_cells, start_t, delta_t):
