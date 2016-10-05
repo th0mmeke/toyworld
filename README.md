@@ -25,8 +25,8 @@ Install pre-reqs:
     apt-get update
     apt-get -y install python-networkx python-numpy python-rdkit git-core
     apt-get install wget zip
-    wget https://pymunk.googlecode.com/files/pymunk-4.0.0.zip -O /tmp/pymunk.zip
-    cd /tmp; unzip pymunk.zip; cd pymunk-*; python setup.py install
+    apt-get python-pip
+    sudo pip install pymunk
 
 Set environment variables:
 

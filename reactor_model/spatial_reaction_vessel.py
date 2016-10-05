@@ -7,7 +7,6 @@ Created on 22/03/2013
 import random
 import logging
 import importlib
-import os
 
 from rdkit.Chem import AllChem as Chem
 
@@ -29,12 +28,22 @@ class SpatialReactionVessel(ReactionVessel):
     """
 
     reaction_vessel_size = 500  # -500->500
-    molecule_collision_type = 1
-    wall_collision_type = 2
+    REACTANT = 1
+    PRODUCT = 2
+    WALL = 3
 
     def __init__(self, chemistry, population=None, parameters=Parameters(), product_selection_strategy="energy"):
 
         self.initial_average_ke = int(parameters.get('Energy'))
+        wall_energy_parameter = parameters.get('VesselWallEnergy')
+        wall_energy = 0
+        if wall_energy_parameter is not None:
+            if wall_energy_parameter:  # could be False or True or a string...
+                # could be True or a string...
+                if type(wall_energy_parameter) == bool:  # True
+                    wall_energy = self.initial_average_ke
+                else:
+                    wall_energy = float(wall_energy_parameter)
 
         self._bodies = {}  # dictionary body:mol
         self._nothing_happening = 0
@@ -48,8 +57,8 @@ class SpatialReactionVessel(ReactionVessel):
                        pm.Segment(self._space.static_body, (wall_end_point, wall_end_point), (wall_end_point, -wall_end_point), wall_thickness),
                        pm.Segment(self._space.static_body, (-wall_end_point, -wall_end_point), (wall_end_point, -wall_end_point), wall_thickness)
                        ]
-        for wall in self._walls:  # can't set these in the constructor
-            wall.collision_type = SpatialReactionVessel.wall_collision_type
+        for wall in self._walls:  # can't set these in the Segment constructor
+            wall.collision_type = SpatialReactionVessel.WALL
             wall.elasticity = 0.9999
             wall.friction = 0
         self._space.add(self._walls)
@@ -58,35 +67,31 @@ class SpatialReactionVessel(ReactionVessel):
                                                     product_selection_strategy=product_selection_strategy)
 
         self._end_iteration = int(parameters.get('Iterations'))
-        self._space.add_collision_handler(SpatialReactionVessel.molecule_collision_type,
-                                          SpatialReactionVessel.molecule_collision_type,
-                                          begin=SpatialReactionVessel._begin_molecule_collision_handler,
-                                          pre_solve=None,
-                                          post_solve=None,
-                                          separate=SpatialReactionVessel._end_separation_handler,
-                                          context3=self)
+        h = self._space.add_collision_handler(SpatialReactionVessel.REACTANT,
+                                              SpatialReactionVessel.REACTANT)
 
-        wall_energy_parameter = parameters.get('VesselWallEnergy')
-        if wall_energy_parameter is not None:
-            if wall_energy_parameter:  # could be False or True or a string...
-                # could be True or a string...
-                if type(wall_energy_parameter) == bool:  # True
-                    wall_energy = self.initial_average_ke
-                else:
-                    wall_energy = float(wall_energy_parameter)
+        h.begin = SpatialReactionVessel._begin_molecule_collision_handler
+        h.pre_solve = None
+        h.post_solve = None
+        h.separate = SpatialReactionVessel._end_separation_handler
 
-                if wall_energy > 0:  # cannot be zero
-                    logging.info("Vessel Wall Energy = {} (molecules bouncing off the container will be set to this KE)".format(wall_energy))
-                    self._space.add_collision_handler(SpatialReactionVessel.molecule_collision_type,
-                                                      SpatialReactionVessel.wall_collision_type,
-                                                      begin=SpatialReactionVessel._begin_wall_collision_handler,
-                                                      pre_solve=None, post_solve=None, separate=None, context4=self,
-                                                      wall_energy=wall_energy)
+        if wall_energy > 0:  # cannot be zero
+            logging.info("Vessel Wall Energy = {} (molecules bouncing off the container will be set to this KE)".format(wall_energy))
+            h = self._space.add_collision_handler(SpatialReactionVessel.PRODUCT,
+                                                  SpatialReactionVessel.WALL)
+            h.begin = SpatialReactionVessel._begin_wall_collision_handler
+            h = self._space.add_collision_handler(SpatialReactionVessel.REACTANT,
+                                                  SpatialReactionVessel.WALL)
+            h.begin = SpatialReactionVessel._begin_wall_collision_handler
+
 
         if population is not None:
-
             mols = [getattr(importlib.import_module(self._molecule_module), self._molecule_class)(smiles, kinetic_energy=self.initial_average_ke) for smiles in population.get_population()]
             self.add_molecules(mols)
+            # Mark all molecules as potential reactants
+            for mol in mols:
+                for shape in mol.body.shapes:
+                    shape.collision_type = SpatialReactionVessel.REACTANT
 
         self._energy_input = self._energy_output = 0  # reset after adding molecules
 
@@ -108,10 +113,8 @@ class SpatialReactionVessel(ReactionVessel):
             self._bodies[mol.body] = mol
             mol.set_position(x, y)
             for shape in mol.body.shapes:
-                shape.collision_type = SpatialReactionVessel.molecule_collision_type
                 self._space.add(shape)
             self._space.add(mol.body)
-            mol.tag = 1
 
     def remove_molecules(self, molecules):
         super(SpatialReactionVessel, self).remove_molecules(molecules)
@@ -122,7 +125,6 @@ class SpatialReactionVessel(ReactionVessel):
                 del shape
             self._space.remove(molecule.body)
             del self._bodies[molecule.body]
-            # objgraph.show_backrefs(molecule)
             del molecule
 
     def get_molecules(self):
@@ -173,7 +175,6 @@ class SpatialReactionVessel(ReactionVessel):
         logging.debug("Available energy for reaction = IE {} + KE {} - CM {} = {}".format(initial_ie, initial_ke,
                                                                                           Kinetics2D.get_CM_energy(reactant_mols),
                                                                                           available_energy_for_reaction))
-
         reaction_options = self.reaction_model.get_reaction_options(reactant_mols)
 
         rxn = self._select_reaction(reaction_options, available_energy_for_reaction)
@@ -212,71 +213,67 @@ class SpatialReactionVessel(ReactionVessel):
         return rxn
 
     @classmethod
-    def _end_separation_handler(cls, space, arbiter, context3,  *args, **kwargs):
-        mols = []
+    def _end_separation_handler(cls, arbiter, space, data):
+        '''Called when two molecules separate. Mark them as potential reactants.
+        :param arbiter:
+        :param space:
+        :param data:
+        :return:
+        '''
+
         for shape in arbiter.shapes:
-            if shape.body in context3._bodies.keys():
-                mols.append(context3._bodies[shape.body])
-        for mol in mols:
-            mol.tag = 0
+            shape.collision_type = SpatialReactionVessel.REACTANT
+
         return False
 
     @classmethod
-    def _begin_molecule_collision_handler(cls, space, arbiter, context3, *args, **kwargs):
-
-        if context3.iteration >= context3._end_iteration: # may be part-way through a sequence of reactions - do not return more than asked for
-            return False
+    def _begin_molecule_collision_handler(cls, arbiter, space, data):
 
         try:
-            reactant_mols = [context3._bodies[shape.body] for shape in arbiter.shapes]
+            reactant_mols = [data._bodies[shape.body] for shape in arbiter.shapes]
         except:
             return False  # one or more reactants were in collision with another molecule previously in this timestep
 
-        tags = set([mol.tag for mol in reactant_mols])
-        if len(tags) > 1 or 0 not in tags:
-            return False
-
-        rxn = context3.discover_reaction(reactant_mols)
+        rxn = data.discover_reaction(reactant_mols)
 
         if rxn is None:
             return True  # let the standard collision handler take over - bounce these molecules
 
-        context3.iteration += 1
+        data.iteration += 1
         product_mols = rxn.fire()
 
-        for mol in product_mols:
-            mol.tag = 1
-
         collision_location = list(sum([shape.body.position for shape in arbiter.shapes]) / len(arbiter.shapes))
-        context3.remove_molecules(reactant_mols)  # remove molecules from reactor and from space
+        data.remove_molecules(reactant_mols)  # remove molecules from reactor and from space
         for mol in product_mols:
-            mol_location = collision_location + mol.get_velocity() * context3._delta_t * 0.01
-            context3.add_molecules([mol], locations=[mol_location])  # add it in
+            mol_location = collision_location + mol.get_velocity() * data._delta_t * 0.01
+            data.add_molecules([mol], locations=[mol_location])  # add it in
+            for shape in mol.body.shapes:
+                shape.collision_type = SpatialReactionVessel.PRODUCT
 
-        logging.info("t={}, iteration={} (average ke={:.2f}): Reaction between {} giving {}".format(context3.t, context3.iteration,
-                                                                                                    context3.get_total_ke() / context3.get_number_molecules(),
+        logging.info("t={}, iteration={} (average ke={:.2f}): Reaction between {} giving {}".format(data.t, data.iteration,
+                                                                                                    data.get_total_ke() / data.get_number_molecules(),
                                                                                                     [str(mol) for mol in reactant_mols],
                                                                                                     [str(mol) for mol in product_mols]))
         reactants = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in reactant_mols]
         products = [{'id': mol.global_id, 'smiles': Chem.MolToSmiles(mol), 'ke': mol.get_kinetic_energy()} for mol in product_mols]
-        reaction = {'iteration': context3.iteration, 't': context3.t, 'reaction_site': collision_location, 'reactants': reactants, 'products': products}
+        reaction = {'iteration': data.iteration, 't': data.t, 'reaction_site': collision_location, 'reactants': reactants, 'products': products}
 
-        context3._reactions.append(reaction)
+        data._reactions.append(reaction)
 
         return False
 
     @classmethod
-    def _begin_wall_collision_handler(cls, space, arbiter, context4, *args, **kwargs):
+    def _begin_wall_collision_handler(cls, arbiter, space, data):
         for shape in arbiter.shapes:
-            if shape.body in context4._bodies.keys():
-                mol = context4._bodies[shape.body]
+            if shape.body in data._bodies.keys():
+                mol = data._bodies[shape.body]
                 initial_ke = mol.get_kinetic_energy()
                 mol.set_kinetic_energy(kwargs['wall_energy'])
                 delta = initial_ke - kwargs['wall_energy']
 
                 if delta > 0:
-                    context4._energy_output += delta
+                    data._energy_output += delta
                 else:
-                    context4._energy_input += delta
+                    data._energy_input += delta
 
         return True  # now let the standard collision handler take over to bounce this molecule off the wall
