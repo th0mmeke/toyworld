@@ -11,10 +11,10 @@ import random
 from rdkit.Chem import AllChem as Chem
 
 from atoms.molecule import Molecule
-from ULPS import Float_t
-from reactions.reaction import Reaction
 from parameters import Parameters
+from reactions.reaction import Reaction
 from reactor import Reactor
+from util.ulps import Ulps
 
 
 class AspatialReactor(Reactor):
@@ -113,6 +113,6 @@ class AspatialReactor(Reactor):
             rxn = Reaction(product_mols, energy_delta=0, is_reaction=False)
 
         delta_pe = initial_PE - sum([x.get_potential_energy(self.chemistry) for x in product_mols])
-        assert Float_t.almost_equal(delta_pe, -rxn.get_energy_delta())
+        assert Ulps.almost_equal(delta_pe, -rxn.get_energy_delta())
 
         return rxn

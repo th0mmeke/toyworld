@@ -8,9 +8,9 @@ import random
 import unittest
 
 from atoms.kinetic_molecule import KineticMolecule
-from ULPS import Float_t
 from reactions.chemistry_factory import ChemistryFactory
 from reactors.spatial_reactor import SpatialReactor
+from util.ulps import Ulps
 
 
 class TestSpatialReactor(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestSpatialReactor(unittest.TestCase):
             delta_z = (p0[2] - p1[2]) / num_steps / delta_t
 
             for p, v, actual_p in zip(p1, (delta_x, delta_y, delta_z), p0):
-                assert Float_t.almost_equal(p + v * num_steps * delta_t, actual_p)
+                assert Ulps.almost_equal(p + v * num_steps * delta_t, actual_p)
             mol1 = KineticMolecule("O=C=O", internal_energy=10)
             mol1.set_velocity(delta_x, delta_y, delta_z)
             mols[mol1] = p1

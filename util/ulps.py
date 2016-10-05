@@ -8,7 +8,7 @@ import struct
 import logging
 
 
-class Float_t(object):
+class Ulps(object):
 
     def __init__(self, f):
 
@@ -30,8 +30,8 @@ class Float_t(object):
         if abs(a - b) <= max_diff:
             return True
 
-        uA = Float_t(a)
-        uB = Float_t(b)
+        uA = Ulps(a)
+        uB = Ulps(b)
         # Different signs means they do not match
         if uA.negative() != uB.negative():
             logging.info("NEGATIVE: {}={},{}={}".format(a, uA.i, b, uB.i))

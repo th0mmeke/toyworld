@@ -4,19 +4,18 @@ Created on 22/03/2013
 @author: thom
 """
 
-import random
-import logging
 import importlib
-
-from rdkit.Chem import AllChem as Chem
+import logging
+import random
 
 import pymunk as pm
+from rdkit.Chem import AllChem as Chem
 
-from reactors.reactor import Reactor
-from ULPS import Float_t
-from kinetics_2D import Kinetics2D
 import config
+from kinetics_2D import Kinetics2D
 from parameters import Parameters
+from reactors.reactor import Reactor
+from util.ulps import Ulps
 
 
 class SpatialReactor(Reactor):
@@ -172,11 +171,11 @@ class SpatialReactor(Reactor):
             final_pe = sum([x.get_potential_energy(self.chemistry) for x in product_mols])
             final_ke = sum([mol.get_kinetic_energy() for mol in product_mols])
             final_ie = sum([mol.get_internal_energy() for mol in product_mols])
-            assert Float_t.almost_equal(final_pe, initial_pe + rxn.get_energy_delta(), max_diff=config.EnergyTolerance)
-            assert Float_t.almost_equal(sum([mol.get_mass() for mol in product_mols]),
-                                        sum([mol.get_mass() for mol in reactant_mols]))  # conservation of mass
-            assert Float_t.almost_equal(initial_pe + initial_ke + initial_ie, final_pe + final_ke + final_ie,
-                                        max_diff=config.EnergyTolerance)  # conservation of energy
+            assert Ulps.almost_equal(final_pe, initial_pe + rxn.get_energy_delta(), max_diff=config.EnergyTolerance)
+            assert Ulps.almost_equal(sum([mol.get_mass() for mol in product_mols]),
+                                     sum([mol.get_mass() for mol in reactant_mols]))  # conservation of mass
+            assert Ulps.almost_equal(initial_pe + initial_ke + initial_ie, final_pe + final_ke + final_ie,
+                                     max_diff=config.EnergyTolerance)  # conservation of energy
 
             # logging.info("Reactant KEs = {}".format([mol.get_kinetic_energy() for mol in reactant_mols]))
             logging.debug("In_PE + In_KE + In_IE = {} + {} + {} = {}".format(initial_pe, initial_ke, initial_ie,

@@ -10,9 +10,9 @@ import logging
 from rdkit.Chem import AllChem as Chem
 
 from atoms.molecule import Molecule  # only used in assertion to check conservation of potential energy
-from ULPS import Float_t
 from reaction import Reaction
 from reactions import Reactions
+from util.ulps import Ulps
 
 
 class EmergentReactions(Reactions):
@@ -131,7 +131,7 @@ class EmergentReactions(Reactions):
                 else:  # no exception, so managed to execute _change_bond()...
                     bond_energy = self._chemistry.get_bond_energy(new_mol.GetAtomWithIdx(begin_atom_idx), new_mol.GetAtomWithIdx(
                         end_atom_idx), start_bond_type=old_bond_order, end_bond_type=new_bond_order)  # change of energy from bond of GetBondType() to bond_order
-                    assert Float_t.almost_equal(reactant_mol.get_potential_energy(
+                    assert Ulps.almost_equal(reactant_mol.get_potential_energy(
                         self._chemistry) + bond_energy, new_mol.get_potential_energy(self._chemistry))
                     logging.debug("Reaction option: {} to {} - change bond {}-{} from {} to {} (e={})".format(Chem.MolToSmiles(reactant_mol),
                                                                                                               Chem.MolToSmiles(new_mol), begin_atom_idx, end_atom_idx, old_bond_order, new_bond_order, bond_energy))
@@ -171,7 +171,7 @@ class EmergentReactions(Reactions):
                                     end_atom_idx), end_bond_type=bond_order)  # bond creation of order bond_order
                                 logging.debug("Reaction option: {} to {} - addition of {} bond from {} to {} (e={})".format(
                                     Chem.MolToSmiles(reactant_mol), Chem.MolToSmiles(new_mol), bond_order, begin_atom_idx, end_atom_idx, bond_energy))
-                                assert Float_t.almost_equal(reactant_mol.get_potential_energy(
+                                assert Ulps.almost_equal(reactant_mol.get_potential_energy(
                                     self._chemistry) + bond_energy, Molecule(new_mol).get_potential_energy(self._chemistry))
                                 reaction_options.append(Reaction(new_mol.split_molecule(), bond_energy))
 
@@ -306,7 +306,7 @@ class EmergentReactions(Reactions):
                                     end_atom_idx), end_bond_type=bond_order)  # bond creation of order bond_order
                                 logging.debug("Reaction option: {} to {} - addition of {} bond from {} to {} (e={})".format(
                                     Chem.MolToSmiles(reactant_mol), Chem.MolToSmiles(new_mol), bond_order, begin_atom_idx, end_atom_idx, bond_energy))
-                                assert Float_t.almost_equal(reactant_mol.get_potential_energy(
+                                assert Ulps.almost_equal(reactant_mol.get_potential_energy(
                                     self._chemistry) + bond_energy, Molecule(new_mol).get_potential_energy(self._chemistry))
                                 reaction_options.append(Reaction(new_mol.split_molecule(), bond_energy))
 

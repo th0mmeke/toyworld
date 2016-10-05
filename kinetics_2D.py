@@ -4,14 +4,14 @@ Created on 22/03/2013
 @author: thom
 """
 
-import random
-import math
 import logging
+import math
+import random
 
 from rdkit.Chem import AllChem as Chem
 
-from ULPS import Float_t
 import config
+from util.ulps import Ulps
 
 
 class Kinetics2D(object):
@@ -155,7 +155,7 @@ class Kinetics2D(object):
         #########################
         # Confirm post-conditions
         # 1. Mass
-        assert Float_t.almost_equal(sum(in_mass), sum(out_mass))
+        assert Ulps.almost_equal(sum(in_mass), sum(out_mass))
 
         # 2. Momentum
 
@@ -164,12 +164,12 @@ class Kinetics2D(object):
         out_mv_total = total_mv(out_mv)
         logging.debug("IN MV = {}, OUT MV = {}".format(in_mv_total, out_mv_total))
         for in_, out_ in zip(in_mv_total, out_mv_total):
-            assert Float_t.almost_equal(in_, out_)
+            assert Ulps.almost_equal(in_, out_)
 
         # 3. Energy
         out_ke = sum([cls.get_ke(m, *v) for m, v in zip(out_mass, out_v)])
         logging.debug("IN_KE + IN_IE = {}+{} = {}, OUT_KE + DELTA + IE = {} + {} + {} = {}".format(in_ke, in_ie, in_ke + in_ie, out_ke, energy_delta, IE, out_ke + energy_delta + IE))
 
-        assert Float_t.almost_equal(in_ke + in_ie, out_ke + energy_delta + IE, max_diff=config.EnergyTolerance)
+        assert Ulps.almost_equal(in_ke + in_ie, out_ke + energy_delta + IE, max_diff=config.EnergyTolerance)
 
         return out_v, IE

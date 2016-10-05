@@ -12,7 +12,7 @@ from rdkit.Chem import AllChem as Chem
 from rdkit.rdBase import DisableLog, EnableLog
 
 from atoms.kinetic_molecule import KineticMolecule
-from ULPS import Float_t
+from util.ulps import Ulps
 
 
 class TestKineticMolecule(unittest.TestCase):
@@ -38,7 +38,7 @@ class TestKineticMolecule(unittest.TestCase):
         s = mol.get_speed()
         v = mol.get_velocity()
         e = mol.get_kinetic_energy()
-        self.assertTrue(Float_t.almost_equal(30, e))
+        self.assertTrue(Ulps.almost_equal(30, e))
         self.assertAlmostEqual(s, math.sqrt(v[0] * v[0] + v[1] * v[1]))
         self.assertAlmostEqual(e, 0.5 * mol.get_mass() * s * s)
 
